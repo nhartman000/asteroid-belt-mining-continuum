@@ -1,0 +1,106 @@
+<canvas id="gl" aria-label="3D mission view"></canvas>
+<div id="dim"></div>
+<section class="view active" id="v-console">
+  <div class="topbar">
+    <div class="ttl">Mission Control<small id="c-scn">—</small></div>
+    <span class="badge b-sim dsrc" data-act="openData">DATA: SIMULATED</span>
+    <div class="clock clk">T+0 d<small>PLANNING</small></div>
+    <button class="ib mute" data-act="mute" aria-label="Sound">🔊</button>
+    <button class="ib pausebtn" data-act="pause" aria-label="Pause">⏸</button>
+  </div>
+  <div class="scroll">
+    <div class="hero"><div class="logo">Asteroid Belt<br>Mining Continuum</div><div class="sub">Swarm mining mission control · arcade sim</div></div>
+    <div class="mstrip" id="mstrip"></div>
+    <div id="stage1"></div><div class="tiles" id="tiles"></div>
+    <div class="crow">
+      <button class="btn y" data-act="openCrew">👥 Crew &amp; Teams</button>
+      <button class="btn" data-act="openLearn">📘 Learn</button>
+      <button class="btn" data-act="tutorial">🎓 Tutorial</button>
+      <button class="btn" data-act="openSaves">💾 Save / Share</button>
+      <button class="btn" data-act="openBoard">🏆 Leaderboard</button>
+      <button class="btn" data-act="openSettings">⚙ Settings</button>
+    </div>
+    <div class="foot" id="foot">All values in this game are <b>simulated</b> or approximate reference values for learning. This is an arcade game, <b>not a flight-certified mission planning system</b>. Team play is local (shared device) — there is no online connection. Sizes and distances are not to scale.</div>
+  </div>
+</section>
+
+<section class="view passthru" id="v-solar">
+  <div class="topbar" data-title="Solar System &amp; Targets"></div>
+  <div class="ovl" id="lab-solar"></div>
+  <div class="hud infocard" id="infocard" style="display:none"></div>
+  <div class="side">
+    <button class="ib" data-act="zoomIn" aria-label="Zoom in">＋</button>
+    <button class="ib" data-act="zoomOut" aria-label="Zoom out">－</button>
+    <button class="ib" data-act="followFleet" title="Follow fleet">🐝</button>
+  </div>
+  <div class="bottom">
+    <div class="row" style="justify-content:center">
+      <button class="btn y" id="btn-return" data-act="returnSystem" style="display:none">⟲ Return to Solar System</button>
+      <button class="chip" id="modeToggle" data-act="toggleMulti">Mode: Single target</button>
+    </div>
+    <div class="hscroll" id="tchips"></div>
+    <div class="hint">1 finger: <b>rotate</b> · 2-finger swipe <b>↓ zoom in</b> / <b>↑ zoom out</b> · tap an asteroid to <b>fly in</b></div>
+  </div>
+</section>
+
+<section class="view passthru" id="v-swarm">
+  <div class="topbar" data-title="Swarm Operations"></div>
+  <div class="banner" id="sw-banner">PRE-LAUNCH PREVIEW</div>
+  <div class="ovl" id="lab-swarm"></div>
+  <div class="side">
+    <button class="ib" data-act="zoomIn" aria-label="Zoom in">＋</button>
+    <button class="ib" data-act="zoomOut" aria-label="Zoom out">－</button>
+    <button class="ib" data-act="swTrack" id="sw-track" title="Camera tracking">🎯</button>
+    <button class="ib" data-act="clearWp" title="Clear waypoint">✖</button>
+  </div>
+  <div class="bottom">
+    <div class="row" id="sw-groups" style="flex-wrap:nowrap"></div>
+    <div class="ords" id="sw-orders"></div>
+    <div class="hscroll" id="sw-assign"></div>
+    <div class="legend"><span style="color:#ff5ceb">● Replicators</span><span style="color:#5dff8a">● Builders</span><span style="color:#ffc640">● Miners</span><span style="color:#3ef0ff">● Transporters</span><span style="color:#d1ff9e">✦ Terraformers</span></div>
+    <div class="hint"><b>Tap</b> space: waypoint · <b>Hold</b>: rally swarm · <b>Release</b>: resume · <b>Tap asteroid</b>: send group</div>
+  </div>
+</section>
+
+<section class="view passthru" id="v-pov">
+  <div class="topbar" data-title="Individual Drone POV"></div>
+  <div class="hudtop" id="pov-types"></div>
+  <div class="readouts" id="pov-ro"></div>
+  <div class="ovl"><div class="xhair" id="xhair"></div><div class="rockmark" id="rockmark"></div><div class="povmsg" id="povmsg"></div></div>
+  <div class="povctl">
+    <div class="joy" id="joy"><i></i></div>
+    <div class="pbtns">
+      <div class="pb br" id="pb-brake">BRAKE</div>
+      <div class="pb tr" id="pb-xfer">TRANS<br>FER</div>
+      <div class="pb th" id="pb-thrust">THRUST</div>
+      <div class="pb mn" id="pb-mine">MINE</div>
+    </div>
+  </div>
+</section>
+
+<section class="view" id="v-fab"><div class="topbar" data-title="Drone Fabrication"></div><div class="panelbody"><div class="inner" id="fab-body"></div></div></section>
+<section class="view" id="v-arch"><div class="topbar" data-title="Mission Architecture"></div><div class="panelbody" id="arch-scroll"><div class="inner" id="arch-body"></div></div></section>
+<section class="view" id="v-studio"><div class="topbar" data-title="Stage 1 · Drone Design Studio"></div><div class="panelbody"><div class="inner" id="studio-body"></div></div></section>
+<section class="view passthru" id="v-opener">
+  <div class="ovl" id="lab-opener"></div>
+  <div id="op-title" class="op-title" data-act="opStart"><div class="op-logo">ASTEROID BELT<br>MINING CONTINUUM</div><div class="op-sub">DRONES THAT MAKE DRONES · AUTOMATED ASSISTED TRAVEL</div><div class="op-press">▶ TAP TO START</div><div class="op-hint4">Four-finger swipe to skip</div></div>
+  <div id="op-cap" class="op-cap"></div>
+  <div id="op-gen" class="op-gen"></div>
+  <div id="op-prompt" class="op-prompt"><div class="op-ptxt"></div><div class="op-bar"><i></i></div></div>
+  <div id="op-hand" class="op-hand"><span class="f1">👆</span><span class="f2">👆</span><i class="ring"></i></div>
+  <div id="op-end" class="op-end"><div class="op-logo sm">NOW ENGINEER<br>THE DRONES THAT<br>MAKE DRONES</div><button class="btn y big" data-act="opFinish">Enter Stage 1 · Design ▸</button></div>
+  <button class="op-skip" data-act="opSkip">Skip ▸▸</button>
+  <div class="op-hint4b">Four-finger swipe or Esc to skip</div>
+</section>
+<section class="view passthru" id="v-he3">
+  <div class="topbar" data-title="⚛ Helium-3 Engineering Round"></div>
+  <div class="ovl" id="lab-he3"></div>
+  <div class="side"><button class="ib" data-act="zoomIn" aria-label="Zoom in">＋</button><button class="ib" data-act="zoomOut" aria-label="Zoom out">－</button></div>
+  <div class="bottom he3sheet"><div id="he3-body"></div></div>
+</section>
+<section class="view" id="v-status"><div class="topbar" data-title="Mission Status &amp; Debrief"></div><div class="panelbody"><div class="inner" id="status-body"></div></div></section>
+
+<div id="modal"><div class="mbox" id="mbox"></div></div>
+<div id="toasts"></div>
+<div id="flash"></div>
+<div id="scan"></div>
