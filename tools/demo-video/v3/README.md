@@ -1,6 +1,6 @@
-# Demo video v3 (29.5 s, 1080×1920, H.264 + AAC)
+# Operation Cosmoform demo video v3 (current): 29.5 s, 1080×1920, H.264 + AAC
 
-Output: `operation-cosmoform-demo.mp4` in the play repo at `demo/operation-cosmoform-demo.mp4`.
+Output: `demo/operation-cosmoform-demo.mp4` in the play repo, live at https://nhartman000.github.io/asteroid-belt-mining-continuum-play/demo/operation-cosmoform-demo.mp4. Source repo: https://github.com/nhartman000/operation-cosmoform.
 
 ## Pipeline
 1. **Gameplay capture** (`capture-clips-v3.js`). Playwright drives the built game under a virtual clock: `clock.install`, then `runFor` once per frame, with CSS animations stepped by hand. A camera director hooks `World.camUpdate` to shoot:
@@ -30,5 +30,6 @@ Output: `operation-cosmoform-demo.mp4` in the play repo at `demo/operation-cosmo
    - the music is sidechain-ducked under the voice, then loudnorm brings the mix to about −16 LUFS, true peak ≤ −1.5 dB
 
 ## Notes
+- **AI disclosure:** the 5.85 s cartoon segment is AI-generated (an original design). Everything else is real gameplay capture from the game.
 - "NASA" appears only as plain text. The end card reads: "NASA Space Apps Challenge entry · not affiliated with or endorsed by NASA".
-- The Marauder is the crewed belt ship. The Marauder's Daughter is the uncrewed interstellar ship, which is FUTURE TECH.
+- The Marauder is the crewed Solar System and asteroid-belt ship. The Marauder's Daughter is the uncrewed interstellar ship, which is FUTURE TECH.

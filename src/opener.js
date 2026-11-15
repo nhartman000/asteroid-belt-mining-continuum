@@ -7,7 +7,7 @@ const Opener={alive:0,phase:'',prompt:null,hits:{},
   go('opener');const W=World;W.flyTo(W.launchPos.clone(),3.2,0.01,()=>W.launchPos);W.cam.auto=0.12;W.cam.phi=1.15;
   ['op-cap','op-gen','op-prompt','op-hand','op-end'].forEach(id=>$('#'+id).classList.remove('show'));$('#op-title').className='op-title show';
   if(AUD.ctx&&AUD.ctx.state==='running'){Music.scene('title');}},
- start(){if(this.phase!=='title')return;audioInit();Music.scene('title');this.phase='run';$('#op-title').classList.add('out');setTimeout(()=>$('#op-title').classList.remove('show','out'),800);this.run(this.alive);},
+ start(){if(this.phase!=='title')return;audioInit();if(!Tour.done()){Tour.start(false);return;}Music.scene('title');this.phase='run';$('#op-title').classList.add('out');setTimeout(()=>$('#op-title').classList.remove('show','out'),800);this.run(this.alive);},
  ok(tok){return tok===this.alive&&App.opener;},
  wait(ms,tok){return new Promise(r=>setTimeout(()=>r(this.ok(tok)),ms));},
  async until(fn,ms,tok){const t0=performance.now();while(this.ok(tok)&&!fn()&&performance.now()-t0<ms)await this.wait(100,tok);return this.ok(tok);},
@@ -66,7 +66,7 @@ const Opener={alive:0,phase:'',prompt:null,hits:{},
  skip(){if(!App.opener)return;audioInit();sfx('whoosh');this.finish(true);},
  bind(){let f4=null;
   const ts=e=>{if(e.touches.length>=4){let x=0,y=0;for(const t of e.touches){x+=t.clientX;y+=t.clientY;}f4={x:x/e.touches.length,y:y/e.touches.length};}};
-  const tm=e=>{if(!f4||e.touches.length<4)return;let x=0,y=0;for(const t of e.touches){x+=t.clientX;y+=t.clientY;}x/=e.touches.length;y/=e.touches.length;if(Math.hypot(x-f4.x,y-f4.y)>40){f4=null;if(App.opener)this.skip();}};
+  const tm=e=>{if(!f4||e.touches.length<4)return;let x=0,y=0;for(const t of e.touches){x+=t.clientX;y+=t.clientY;}x/=e.touches.length;y/=e.touches.length;if(Math.hypot(x-f4.x,y-f4.y)>40){f4=null;if(App.opener)this.skip();else if(App.tour)Tour.skip();}};
   window.addEventListener('touchstart',ts,{passive:true,capture:true});window.addEventListener('touchmove',tm,{passive:true,capture:true});window.addEventListener('touchend',e=>{if(e.touches.length<4)f4=null;},{passive:true,capture:true});
-  window.addEventListener('keydown',e=>{if(!App.opener)return;if(e.code==='Escape'||e.code==='Enter'){e.preventDefault();e.stopImmediatePropagation();if(this.phase==='title'&&e.code==='Enter')this.start();else this.skip();}else if(this.phase==='title'&&e.code==='Space'){e.preventDefault();this.start();}},true);}
+  window.addEventListener('keydown',e=>{if(App.tour&&e.code==='Escape'){e.preventDefault();e.stopImmediatePropagation();Tour.skip();return;}if(!App.opener)return;if(e.code==='Escape'||e.code==='Enter'){e.preventDefault();e.stopImmediatePropagation();if(this.phase==='title'&&e.code==='Enter')this.start();else this.skip();}else if(this.phase==='title'&&e.code==='Space'){e.preventDefault();this.start();}},true);}
 };

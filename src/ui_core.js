@@ -2,10 +2,10 @@
 // ---------- View manager, toasts, modal, concepts ----------
 const View={cur:'console',lock:null,track:'fleet'};
 const VIEWS={solar:'Solar System & Targets',swarm:'Swarm Operations',pov:'Individual Drone POV',fab:'Drone Fabrication',arch:'Mission Architecture',status:'Mission Status & Debrief'};
-function toast(html,cls=''){if(App.opener)return;const el=document.createElement('div');el.className='toast '+cls;el.innerHTML=html;$('#toasts').appendChild(el);setTimeout(()=>{el.style.transition='opacity .4s';el.style.opacity='0';setTimeout(()=>el.remove(),400);},cls==='r'?5000:3600);while($('#toasts').children.length>2)$('#toasts').firstChild.remove();}
+function toast(html,cls=''){if(App.opener||App.tour)return;const el=document.createElement('div');el.className='toast '+cls;el.innerHTML=html;$('#toasts').appendChild(el);setTimeout(()=>{el.style.transition='opacity .4s';el.style.opacity='0';setTimeout(()=>el.remove(),400);},cls==='r'?5000:3600);while($('#toasts').children.length>2)$('#toasts').firstChild.remove();}
 function showModal(html,sticky=false){$('#mbox').innerHTML=(sticky?'':'<button class="ib" style="float:right" data-act="closeModal" aria-label="Close">✕</button>')+html;$('#modal').classList.add('show');$('#modal').dataset.sticky=sticky?'1':'';}
 function hideModal(){$('#modal').classList.remove('show');if(S&&S._pendDec){const e=S._pendDec;S._pendDec=null;setTimeout(()=>{if(!S._decision)openDecision(e);},0);}}
-function concept(k){if(App.opener)return;if(!S.concepts)S.concepts={};if(S.concepts[k]||localStorage.getItem('abmc_tips')==='0')return;const c=CONCEPTS[k];if(!c)return;
+function concept(k){if(App.opener||App.tour)return;if(!S.concepts)S.concepts={};if(S.concepts[k]||localStorage.getItem('abmc_tips')==='0')return;const c=CONCEPTS[k];if(!c)return;
   const now=Date.now();if(now-(window._lastC||0)<9000){return;}window._lastC=now;S.concepts[k]=1;setTimeout(()=>toast(`💡 <b>${c.t}</b> — ${c.x.split('. ')[0]}. <button data-act="concept" data-k="${k}">Learn more</button>`,''),400);}
 function conceptModal(k){const c=CONCEPTS[k];showModal(`<h2>💡 ${c.t}</h2><p>${c.x}</p>${conceptNow(k)}<p><a href="${c.l}" target="_blank" rel="noopener">Learn more (NASA) ↗</a></p>`);}
 function conceptNow(k){if(!S.m)return'';const m=S.m,d=S.design;const L=s=>`<div class="card"><div class="lbl">In your mission (simulated / computed)</div><p>${s}</p></div>`;
@@ -30,7 +30,11 @@ function go(v){
   sfx(v==='console'?'back':'open');const mv=musicForView(v);if(mv)Music.scene(mv);App.refresh(true);
   if(v==='solar'&&!S.concepts.orbitHint){S.concepts.orbitHint=1;}
   if(prev!==v)window.scrollTo(0,0);
+  if(prev!==v&&FIRST_TIPS[v]&&!App.tour&&!App.opener&&!App.demo&&localStorage.getItem('abmc_tips')!=='0'&&!localStorage.getItem('abmc_ft_'+v)){localStorage.setItem('abmc_ft_'+v,'1');setTimeout(()=>toast('💡 <b>First time here?</b> '+FIRST_TIPS[v],'y'),350);}
 }
+const FIRST_TIPS={solar:'Tap an asteroid to fly in. 🌌 zooms out to the stars.',swarm:'Tap space = waypoint · hold = rally · two fingers = zoom.',pov:'Stick steers · hold THRUST · aim and hold MINE · then TRANSFER.',
+ fab:'Drones build drones here. Watch the generation counter climb.',arch:'Fix anything red, then Review plan ▶ to launch.',status:'Send the Marauder along your fuel chain from here.',
+ he3:'Future tech: plot helium-3 mine sites along your routes.',deep:'Pick stars, launch seed probes, then send the uncrewed Marauder’s Daughter.',studio:'Pick a job and tap glowing parts, or ✨ Auto-design all.'};
 function cinematic(){const W=World,c=W.cam;if(S.phase==='plan'){W.flyTo(new V3(0,0,0),W.fitDist(30),1.4);c.auto=0.03;}else{const f=()=>W.groupCentroid('all');W.flyTo(f(),W.fitDist(S.phase==='cruise'?6:4),1.4,f);c.auto=0.05;}c.phi=1.1;}
 function swarmCam(fly){const W=World;const g=S.sel;const tid=g==='all'?S.design.primary:W.groupTarget(g);const r=TMAP[tid].r;
   let dist=S.phase==='plan'?4.5:S.phase==='cruise'?7:r*9+2.4;
@@ -42,14 +46,14 @@ function selGroups(){return S.sel==='all'?[...GKEYS]:[S.sel];}
 const Gs={down:false,x0:0,y0:0,x:0,y:0,t0:0,moved:false,hold:null,two:false,ay:0,pd:0};
 function canvasInput(){
   const cv=$('#gl');
-  const startSingle=(x,y)=>{Gs.down=true;Gs.x0=Gs.x=x;Gs.y0=Gs.y=y;Gs.t0=performance.now();Gs.moved=false;clearTimeout(Gs.hold);
-    if(View.cur==='swarm'||View.cur==='opener')Gs.hold=setTimeout(()=>{if(!Gs.moved&&Gs.down&&!Gs.two)startRally(x,y);},380);};
+  const startSingle=(x,y,ts)=>{Gs.down=true;Gs.x0=Gs.x=x;Gs.y0=Gs.y=y;Gs.t0=ts||performance.now();Gs.moved=false;clearTimeout(Gs.hold);
+    if(View.cur==='swarm'||View.cur==='opener')Gs.hold=setTimeout(()=>{if(!Gs.moved&&Gs.down&&!Gs.two)startRally(x,y);},420);};
   const moveSingle=(x,y)=>{if(!Gs.down)return;const dx=x-Gs.x,dy=y-Gs.y;Gs.x=x;Gs.y=y;if(Math.hypot(x-Gs.x0,y-Gs.y0)>9){Gs.moved=true;}
     if(S.rally&&(View.cur==='swarm'||View.cur==='opener')){S.rally.pos.copy(World.pointOnFocusPlane(x,y));return;}
     if(Gs.moved){clearTimeout(Gs.hold);const c=World.cam;c.theta-=dx*0.0065;c.phi-=dy*0.0055;c.auto=0;}};
-  const endSingle=()=>{if(!Gs.down)return;Gs.down=false;clearTimeout(Gs.hold);if(S.rally){endRally();return;}if(!Gs.moved&&performance.now()-Gs.t0<380)tap(Gs.x0,Gs.y0);};
+  const endSingle=ts=>{if(!Gs.down)return;Gs.down=false;clearTimeout(Gs.hold);if(S.rally){endRally();return;}if(!Gs.moved&&(ts||performance.now())-Gs.t0<380)tap(Gs.x0,Gs.y0);}; // event timestamps, so a busy frame can't turn a tap into a hold
   cv.addEventListener('touchstart',e=>{e.preventDefault();audioInit();const t=e.touches;
-    if(t.length===1&&!Gs.two)startSingle(t[0].clientX,t[0].clientY);
+    if(t.length===1&&!Gs.two)startSingle(t[0].clientX,t[0].clientY,e.timeStamp);
     if(t.length===2){Gs.two=true;Gs.down=false;clearTimeout(Gs.hold);if(S.rally)endRally();Gs.ay=(t[0].clientY+t[1].clientY)/2;Gs.pd=Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);}},{passive:false});
   const two0=t=>{Gs.two=true;Gs.down=false;clearTimeout(Gs.hold);if(S.rally)endRally();Gs.ay=(t[0].clientY+t[1].clientY)/2;Gs.pd=Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);};
   // two-finger zoom also works when a finger lands on a map label (labels sit in .ovl overlays)
@@ -62,15 +66,16 @@ function canvasInput(){
       let f=Math.exp(-dy*0.007);const pr=Gs.pd/Math.max(1,pd);if(Math.abs(pr-1)>0.015&&Math.abs(pd-Gs.pd)>Math.abs(dy)*1.5)f*=pr; // optional pinch
       World.zoom(f);if(App.opener&&Math.abs(dy)>1)Opener.hit('zoom');Gs.ay=ay;Gs.pd=pd;if(Math.abs(dy)>1)showZoomHint(dy>0);}
     else if(t.length===1&&!Gs.two)moveSingle(t[0].clientX,t[0].clientY);},{passive:false});
-  cv.addEventListener('touchend',e=>{e.preventDefault();if(e.touches.length===0){if(Gs.two){Gs.two=false;return;}endSingle();}},{passive:false});
+  cv.addEventListener('touchend',e=>{e.preventDefault();if(e.touches.length===0){if(Gs.two){Gs.two=false;return;}endSingle(e.timeStamp);}},{passive:false});
   cv.addEventListener('touchcancel',()=>{Gs.two=false;Gs.down=false;clearTimeout(Gs.hold);if(S.rally)endRally();});
-  cv.addEventListener('mousedown',e=>{audioInit();startSingle(e.clientX,e.clientY);});
+  cv.addEventListener('mousedown',e=>{audioInit();startSingle(e.clientX,e.clientY,e.timeStamp);});
   window.addEventListener('mousemove',e=>{if(Gs.down)moveSingle(e.clientX,e.clientY);});
-  window.addEventListener('mouseup',()=>endSingle());
+  window.addEventListener('mouseup',e=>endSingle(e.timeStamp));
   cv.addEventListener('wheel',e=>{e.preventDefault();if(App.opener)Opener.hit('zoom');World.zoom(Math.exp(e.deltaY*0.0012));},{passive:false});
 }
 let zhT=0;function showZoomHint(inn){const now=performance.now();if(now-zhT<600)return;zhT=now;const el=$('#v-'+View.cur+' .hint');if(el){el.innerHTML=inn?'🔍 <b>Zooming IN</b> (two-finger swipe down)':'🔭 <b>Zooming OUT</b> (two-finger swipe up)';clearTimeout(el._t);el._t=setTimeout(()=>App.refresh(),1500);}}
 function tap(x,y){
+  if(App.tour)Tour.ev('tap',{x,y,id:View.cur==='swarm'?World.pickTarget(x,y,26):null});
   if(View.cur==='opener'){Opener.tap(x,y);return;}
   if(View.cur==='deep'){Deep.tap(x,y);return;}
   if(View.cur==='solar'){const id=World.pickTarget(x,y);if(id)selectTarget(id);return;}
@@ -78,7 +83,7 @@ function tap(x,y){
     const p=World.pointOnFocusPlane(x,y);const sc=clamp(World.cam.dist*0.09,0.08,3);S.waypoint={pos:p.toArray(),groups:selGroups(),scale:sc,t0:performance.now(),reached:0};
     sfx('waypoint');World.burst(p,[0.3,0.95,1],18,sc*0.6);toast(`📍 Waypoint set — ${selGroups().map(g=>GROUPS[g].name).join(', ')} redirecting.`);App.refresh();}
 }
-function startRally(x,y){const p=World.pointOnFocusPlane(x,y);if(App.opener)Opener.hit('hold');S.rally={pos:p,groups:selGroups(),scale:clamp(World.cam.dist*0.09,0.08,3),age:0};S.waypoint=null;Coach.rallied=true;sfx('rally');navigator.vibrate&&navigator.vibrate(30);App.refresh();
+function startRally(x,y){const p=World.pointOnFocusPlane(x,y);if(App.opener)Opener.hit('hold');if(App.tour)Tour.ev('rally');S.rally={pos:p,groups:selGroups(),scale:clamp(World.cam.dist*0.09,0.08,3),age:0};S.waypoint=null;Coach.rallied=true;sfx('rally');navigator.vibrate&&navigator.vibrate(30);App.refresh();
   const b=$('#sw-banner');b.textContent='🟡 RALLY — drones gathering tightly. Release to resume.';}
 function endRally(){S.rally=null;sfx('select');toast('Rally released — drones resume their assignments.');App.refresh();}
 function selectTarget(id){

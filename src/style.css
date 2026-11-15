@@ -311,3 +311,44 @@ label.sl{display:flex;flex-direction:column;font-size:12px;margin:6px 0}label.sl
 .savecard .sa .sp{flex:1 1 12px;min-width:12px}.savecard .svdel{margin-left:auto;opacity:.85}
 .vault{margin:6px 0;padding:6px 8px;border-radius:10px;border:1px dashed rgba(255,92,240,.45);background:rgba(255,92,240,.05)}
 .savecard .si .badge{align-self:flex-start}
+
+/* ---------- guided tutorial ---------- */
+#tour{position:fixed;inset:0;z-index:9000;pointer-events:none;display:none}
+#tour.on{display:block}
+#tour .t-spot{position:fixed;left:0;top:0;width:60px;height:60px;border-radius:14px;box-shadow:0 0 0 200vmax rgba(1,5,14,.66);transition:transform .28s cubic-bezier(.3,.8,.3,1),width .28s,height .28s,border-radius .28s,opacity .25s;opacity:0}
+#tour.watch .t-spot{box-shadow:0 0 0 200vmax rgba(1,5,14,.28)}
+#tour .t-ring{position:fixed;left:0;top:0;border:3px solid var(--gold);border-radius:14px;opacity:0;transition:transform .28s cubic-bezier(.3,.8,.3,1),width .28s,height .28s;animation:tPulse 1.3s ease-out infinite}
+#tour .t-ring::after{content:'';position:absolute;inset:-3px;border-radius:inherit;border:3px solid var(--gold);animation:tPulse2 1.3s ease-out infinite}
+#tour .t-ring.nudge{animation:tPulse .45s ease-out 3}
+#tour .t-ring.burst{border-color:var(--green);animation:tBurst .6s ease-out forwards}
+#tour .t-ring.burst::after{border-color:var(--green)}
+@keyframes tPulse{0%{box-shadow:0 0 0 0 rgba(255,198,64,.7)}100%{box-shadow:0 0 0 16px rgba(255,198,64,0)}}
+@keyframes tPulse2{0%{transform:scale(1);opacity:.9}100%{transform:scale(1.25);opacity:0}}
+@keyframes tBurst{0%{box-shadow:0 0 0 0 rgba(93,255,138,.9)}100%{box-shadow:0 0 0 28px rgba(93,255,138,0)}}
+#tour .t-hand{position:fixed;left:0;top:0;width:0;height:0;font-size:42px;filter:drop-shadow(0 0 8px rgba(255,255,255,.75));transition:transform .28s cubic-bezier(.3,.8,.3,1),opacity .2s}
+#tour .t-hand span{position:absolute;left:-14px;top:-4px}
+#tour .t-hand .f2{display:none}
+#tour .t-hand.g-tap span{animation:hTap 1.1s ease-in-out infinite}
+#tour .t-hand.g-hold span{animation:hHold 1.8s ease-in-out infinite}
+#tour .t-hand.g-zoom .f2{display:block;left:22px}
+#tour .t-hand.g-zoom span{animation:hSwipe 1.4s ease-in-out infinite}
+#tour .t-hand.g-drag span{animation:tDrag 1.6s ease-in-out infinite}
+#tour .t-hand.g-watch{display:none}
+@keyframes tDrag{0%,100%{transform:translateX(-40px)}50%{transform:translateX(40px)}}
+#tour .t-tip{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + var(--sab,0px));width:min(440px,calc(100vw - 24px));background:rgba(6,16,36,.97);border:2px solid var(--gold);border-radius:16px;padding:12px 16px 12px 58px;font-size:18px;line-height:1.25;color:#fff;box-shadow:0 0 30px rgba(255,198,64,.35);transition:border-color .2s,background .2s}
+#tour .t-tip::before{content:attr(data-n);position:absolute;left:10px;top:50%;transform:translateY(-50%);font:800 12px var(--mono);color:var(--gold);width:40px;text-align:center}
+#tour .t-tip .t-prog{position:absolute;left:12px;right:12px;top:-2px;height:3px;border-radius:2px;background:rgba(255,255,255,.12);overflow:hidden}
+#tour .t-tip .t-prog i{display:block;height:100%;background:var(--gold);transition:width .4s}
+#tour .t-tip.ok{border-color:var(--green);background:rgba(4,30,18,.97);color:var(--green);font-weight:800;box-shadow:0 0 30px rgba(93,255,138,.4)}
+#tour .t-tip.nudge{animation:tShake .4s ease-in-out 2}
+@keyframes tShake{0%,100%{transform:translateX(-50%)}25%{transform:translateX(calc(-50% - 7px))}75%{transform:translateX(calc(-50% + 7px))}}
+#tour .t-skip{position:fixed;right:calc(10px + var(--sar,0px));top:calc(10px + var(--sat,0px));min-width:84px;min-height:44px;padding:0 14px;border-radius:22px;border:1px solid rgba(255,255,255,.35);background:rgba(4,10,24,.85);color:#dfe9f5;font:700 14px var(--mono);pointer-events:auto;z-index:2}
+#tour .t-done{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.92);width:min(400px,calc(100vw - 32px));background:rgba(6,16,36,.98);border:2px solid var(--green);border-radius:20px;padding:22px 20px;text-align:center;display:none;flex-direction:column;gap:10px;pointer-events:auto;box-shadow:0 0 0 200vmax rgba(1,5,14,.6),0 0 40px rgba(93,255,138,.35);transition:transform .3s}
+#tour .t-done.show{display:flex;transform:translate(-50%,-50%) scale(1)}
+#tour .t-done .t-big{font:900 28px var(--mono);color:var(--green)}
+#tour .t-done .btn{min-height:48px;justify-content:center}
+body.touring #toasts,body.touring #coach,body.touring .view .hint,body.touring .legend,body.touring #sw-orders,body.touring #sw-assign,body.touring #sw-banner,body.touring .topbar .dsrc,body.touring .topbar .clk,body.touring .topbar .mute,body.touring .topbar .pausebtn,body.touring .side,body.touring #v-solar .bottom,body.touring .deeptop,body.touring #infocard,body.touring .qpath{visibility:hidden!important}
+body.touring:not(.t-back) .topbar .back{visibility:hidden}
+body.touring.t-side #v-swarm .side,body.touring #v-solar .side [data-act="openDeepZ"]{visibility:visible!important}
+.introgo{display:flex;flex-direction:column;gap:8px;margin-top:6px}.introgo .btn{justify-content:center;min-height:50px}
+.qpath{margin:0 0 8px;gap:8px}

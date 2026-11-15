@@ -15,16 +15,15 @@ const Coach={i:-1,steps:[
   el.style.bottom=(View.cur==='console'||View.cur==='fab'||View.cur==='arch'||View.cur==='status')?'calc(12px + env(safe-area-inset-bottom,0px))':'auto';el.style.top=el.style.bottom==='auto'?'calc(60px + env(safe-area-inset-top,0px))':'auto';},
  tick(){if(this.i<0)return;if(this.steps[this.i]&&this.steps[this.i].done()){this.i++;sfx('success');this.show();}else if(this._v!==View.cur){this._v=View.cur;this.show();}}};
 // ---------- modals ----------
-function introModal(){showModal(`<div class="logo" style="font-size:26px;text-align:left">Operation<br>Cosmoform</div><div class="lbl">Asteroid Belt Mining Continuum</div>
- <p><b>Mission thesis: automate assisted travel.</b> Replicator drones launch, pick the best site, land and swarm, turn themselves into factories, mine, and build more drones. New drones carry seed payloads onward and build <b>waystations</b> that turn water ice into propellant — so crewed ships can refuel along the way.</p>
- <p style="font-size:13px"><b>Stage 1</b> starts in the Drone Design Studio: engineer four drone families (replicators, builders, miners, payload transporters) plus terraformer kits, using the TCTA design method, then set the fleet ratio.</p>
- <p style="font-size:13px;color:var(--dim)">Built on open NASA/JPL data (JPL Small-Body Database snapshot) with simulated sensors, clearly labeled. Arcade game — not a flight-certified planner. No login, works offline.<br>NASA Space Apps Challenge entry · not affiliated with or endorsed by NASA.</p>
- <div class="row"><button class="btn solid big" data-act="demo">▶ 90-second demo</button><button class="btn y big" data-act="planStart">🛠 Stage 1: design drones</button></div>
- <div class="row" style="margin-top:8px"><button class="btn" data-act="openSaves">💾 Saved games</button><button class="btn" data-act="openCrew">👥 Team play (1–4, same device)</button><button class="btn" data-act="openAbout">📚 Data sources</button><button class="btn" data-act="tutorial">🎓 Tutorial</button></div>`,true);}
+function introModal(ms){showModal(`<div class="logo" style="font-size:26px;text-align:left">Operation<br>Cosmoform</div><div class="lbl">Asteroid Belt Mining Continuum</div>
+ <p style="margin:8px 0">Design drones that build drones, mine the asteroid belt, build fuel waystations, then spread to the stars.</p>
+ <div class="introgo">${ms?`<button class="btn g big" data-act="loadMission">⟲ Continue (${esc(ms.when)})</button>`:''}<button class="btn y big" data-act="planStart">🛠 New mission</button><button class="btn solid big" data-act="tutorial">🎓 Tutorial · about 1 min</button></div>
+ <div class="row" style="margin-top:10px"><button class="btn" data-act="openSaves">💾 Saved games</button><button class="btn" data-act="demo">▶ Watch a demo</button><button class="btn" data-act="openCrew">👥 Team play</button><button class="btn" data-act="openAbout">📚 About</button></div>
+ <p style="font-size:11.5px;color:var(--dim);margin-top:10px">Built on open NASA/JPL data with simulated sensors, clearly labeled. Arcade game — not a flight-certified planner. No login, works offline.<br>NASA Space Apps Challenge entry · not affiliated with or endorsed by NASA.</p>`,true);}
 function briefModal(){const k=S.design.scenario,sc=SCENARIOS[k],t=TMAP[sc.primary];showModal(`<h2>${sc.icon} ${sc.name}</h2>${STORY[k].map(p=>`<p>${p}</p>`).join('')}
  <div class="card"><div class="lbl">Objectives</div>${sc.goals.map(g=>`<div>• ${g.label}${g.u?` (${g.v} ${g.u})`:''}</div>`).join('')||'None — sandbox'}<div class="lbl" style="margin-top:6px">Operations deadline</div>${sc.deadline>9000?'None':Math.round(sc.deadline*DIFFS[S.design.difficulty].dead)+' days after arrival'}</div>
  <p style="font-size:12px">${(MISSIONS[sc.primary]||[]).map(([n,u])=>`<a href="${u}" target="_blank" rel="noopener">${n} ↗</a>`).join(' · ')}</p><button class="btn solid" data-act="closeModal">Got it</button>`);}
-function aboutModal(){showModal(`<h2>📚 About & data sources</h2><p style="font-size:12px;color:var(--dim)">NASA Space Apps Challenge entry · not affiliated with or endorsed by NASA. NASA and JPL are named only as data sources.</p><p>Target orbital and physical values come from a <b>bundled snapshot of the JPL Small-Body Database API</b>, fetched ${SBDB_SNAPSHOT.date}. They are labeled <span class="badge b-imp">IMPORTED · JPL SBDB snapshot</span>. Sensor readings during play are <span class="badge b-sim">SIMULATED</span> and never measurements. Live fetches are only labeled <span class="badge b-cy">LIVE</span> if a request to JPL actually succeeds.</p>
+function aboutModal(){showModal(`<h2>📚 About & data sources</h2><div class="row" style="margin:4px 0 8px"><button class="btn solid" data-act="tutorial">🎓 Replay tutorial</button><button class="btn" data-act="replayIntro">▶ Arcade intro</button></div><p style="font-size:13px"><b>Mission thesis: automate assisted travel.</b> Replicator drones launch, land and swarm, turn themselves into factories, mine, and build more drones. New drones carry seed payloads onward and build waystations that turn water ice into propellant, so crewed ships can refuel along the way.</p><p style="font-size:12px;color:var(--dim)">NASA Space Apps Challenge entry · not affiliated with or endorsed by NASA. NASA and JPL are named only as data sources.</p><p>Target orbital and physical values come from a <b>bundled snapshot of the JPL Small-Body Database API</b>, fetched ${SBDB_SNAPSHOT.date}. They are labeled <span class="badge b-imp">IMPORTED · JPL SBDB snapshot</span>. Sensor readings during play are <span class="badge b-sim">SIMULATED</span> and never measurements. Live fetches are only labeled <span class="badge b-cy">LIVE</span> if a request to JPL actually succeeds.</p>
  <table class="tb"><tr><th>Target</th><th>a (AU)</th><th>e</th><th>i°</th><th>Period (d)</th><th>D (km)</th><th>Type</th></tr>${TARGETS.map(t=>{const s=SBDB_SNAPSHOT.data[t.id];return`<tr><td>${esc(s.fullname)}</td><td>${s.a}</td><td>${s.e}</td><td>${s.i}</td><td>${s.per_d}</td><td>${s.diameter_km}</td><td>${[s.spec_B,s.spec_T].filter(Boolean).join('/')}</td></tr>`;}).join('')}</table>
  <div class="lbl" style="margin-top:8px">Sources</div>${SOURCES.map(([n,u])=>`<div style="font-size:13px;margin:4px 0">• <a href="${u}" target="_blank" rel="noopener">${n}</a></div>`).join('')}
  <div class="lbl" style="margin-top:8px">Models used</div><p style="font-size:13px">Hohmann transfer time and Δv; Tsiolkovsky rocket equation; solar flux ∝ 1/r²; radio light-time 8.317 min/AU; equilibrium temperature T ≈ 278 K·(1−A)<sup>¼</sup>/√a; water electrolysis minimum ≈ 4.4 kWh/kg. Game rates (mining, build speed, events, composition fractions) are simplified and labeled simulated. Stage 3 (deep space): probe trip time = distance ÷ cruise speed; accelerate-and-brake mass ratio = e<sup>2v/vₑ</sup>; light-time = 1 year per light-year; exoplanet values from the bundled NASA Exoplanet Archive snapshot (${EXO_SNAPSHOT}); the spiral-arm map is a procedural model; interstellar propulsion and colony resources are FUTURE TECH / SPECULATIVE. Not a flight-certified planning system.</p>`);}
@@ -159,7 +158,7 @@ const ACT={
  saveScore:()=>{const b=LS.get('abmc_board',{});const k=`${S.design.scenario}|${S.design.difficulty}|${S.design.physics}`;(b[k]=b[k]||[]).push({name:$('#lbname').value||'Crew',score:S.report.score,grade:S.report.grade,date:new Date().toLocaleDateString()});b[k].sort((x,y)=>y.score-x.score);b[k]=b[k].slice(0,20);LS.set('abmc_board',b);toast('Score saved to leaderboard.','g');boardModal();},
  newMission:()=>{hideModal();const scn=S.design.scenario,df=S.design.difficulty,ph=S.design.physics;S=newState(scn);S.design.difficulty=df;S.design.physics=ph;applyDesignToState();World.resetSwarm();View.lock=null;renderInfo(null);go('console');toast('New mission ready. Plan it in Mission Architecture.','g');},
  nextTeam:()=>{const T=S.team;const seed=S.seed,scn=S.design.scenario,df=S.design.difficulty,ph=S.design.physics;T.cur++;S=newState(scn);S.seed=seed;S.design.difficulty=df;S.design.physics=ph;applyDesignToState();World.resetSwarm();go('arch');toast(`<b>${esc(T.teams[T.cur])}</b>, your turn — same scenario & events.`,'g');},
- tutorial:()=>{hideModal();go('console');Coach.start();toast('Tutorial: follow the gold coach card at the bottom.','y');},
+ tutorial:()=>Tour.start(true),openDeepZ:()=>{Deep.enter(true);},
  demo:()=>{hideModal();startDemo();},planStart:()=>{hideModal();go('studio');briefModal();},
  he3Toggle:el=>He3.toggle(el.dataset.id),
  deepTab:el=>{Deep.st().tab=el.dataset.v;$('#deep-body')&&($('#deep-body').parentElement.scrollTop=0);App.refresh(true);},
@@ -176,7 +175,7 @@ const ACT={
  openDeep:()=>Deep.enter(false),
  stTab:el=>{Studio.tab=el.dataset.k;App.refresh(true);},stP:el=>{Studio.cur=el.dataset.k;App.refresh(true);},stT:el=>Studio.apply(el.dataset.id),stUndo:()=>Studio.undo(),stReset:()=>Studio.reset(),stBranch:el=>Studio.branch(+el.dataset.k),
  stAuto:()=>{if(S.phase!=='plan')return;const ok=Studio.autoPath(Studio.cur);Studio.D().committed=false;toast(ok?'Suggested path applied — each step stayed inside Ω(𝒞). Review, then commit.':'No admissible path found from here — try Baseline.',ok?'':'y');App.refresh(true);},
- stCommit:()=>{if(S.phase!=='plan')return;Studio.commitOne(Studio.cur);App.refresh(true);},stAutoAll:()=>{if(S.phase!=='plan')return;Studio.autoAll();toast('Remaining drone types auto-designed and committed. Stage 1 complete.','g');App.refresh(true);},
+ stCommit:()=>{if(S.phase!=='plan')return;Studio.commitOne(Studio.cur);App.refresh(true);},stAutoAll:()=>{if(S.phase!=='plan')return;Studio.autoAll();Studio.tab='mix';toast('All drone types auto-designed. Set the fleet size, then 🚀 Launch.','g');App.refresh(true);$('#v-studio .panelbody')&&($('#v-studio .panelbody').scrollTop=0);},
  coachNext:()=>{Coach.i++;Coach.show();},coachX:()=>{Coach.i=-1;Coach.show();},
  tipsToggle:()=>{localStorage.setItem('abmc_tips',localStorage.getItem('abmc_tips')==='0'?'1':'0');settingsModal();},
 };
@@ -196,7 +195,7 @@ function loadMission(ms){if(!ms||!ms.s){const l=Saves.idx();const a=l.find(x=>x.
   if(S.phase==='cruise')World.onLaunchQuiet();if(S.phase==='ops'||S.phase==='ended'){World.onArrive();for(const id in S.mfac)if(S.mfac[id].online)World.onFactory(id);if(S.dfac.online)World.onDepotFactory();}
   hideModal();View.lock=null;go('console');Deep.netDirty=1;Deep.lock=null;Deep.lockShip=false;Deep.redrawChain();if(He3.built)He3.redraw();toast('Game loaded.','g');}
 // ---------- loop ----------
-function loop(now){requestAnimationFrame(loop);const t=now/1000;let dt=Math.min(0.05,(now-(App.last||now))/1000);App.last=now;Opener.frame();S.playSec=(S.playSec||0)+dt;
+function loop(now){requestAnimationFrame(loop);const t=now/1000;let dt=Math.min(0.05,(now-(App.last||now))/1000);App.last=now;Opener.frame();Tour.frame();S.playSec=(S.playSec||0)+dt;
   if(!S.paused&&!S._decision&&(S.phase==='cruise'||S.phase==='ops')){let days=(S.phase==='cruise'?S.cruiseDays/App.CRUISE_SEC*Math.min(S.speed,2):App.OPS_DPS*S.speed)*dt;while(days>0&&(S.phase==='cruise'||S.phase==='ops')&&!S._decision){const st=Math.min(days,0.5);simStep(st);days-=st;}}
   // waypoint expiry
   if(S.waypoint){const wp=S.waypoint;const c=World.groupCentroid(wp.groups[0]);const p=new V3().fromArray(wp.pos);if(!wp.reached&&c.distanceTo(p)<wp.scale*1.4){wp.reached=performance.now();}
@@ -204,17 +203,17 @@ function loop(now){requestAnimationFrame(loop);const t=now/1000;let dt=Math.min(
   World.frame(S.paused&&View.cur!=='pov'?dt*0.15:dt,t);updateLabels();He3.updLabels();Deep.frame(dt);Deep.updLabels();
   App.hudT+=dt;if(App.hudT>0.25){App.hudT=0;updateHUD();Coach.tick();}
   App.panelT+=dt;if(App.panelT>1){App.panelT=0;if(!App.ptr&&!$('#modal').classList.contains('show')||View.cur==='swarm'){if(View.cur==='swarm')renderSwarmUI();if(View.cur==='fab'&&!App.ptr)renderFab();if(View.cur==='status'&&!App.ptr){const y=$('#v-status .panelbody').scrollTop;renderStatus();$('#v-status .panelbody').scrollTop=y;}if(View.cur==='solar'){renderSolarUI();}if(View.cur==='deep'&&S.deep&&S.deep.run&&!App.ptr){const sh=$('#v-deep .deepsheet');const y=sh.scrollTop;renderDeep();sh.scrollTop=y;}}
-    if((S.phase!=='plan'||(S.deep&&S.deep.run))&&Math.random()<0.1)saveMission(false);}
+    if(!App.tour&&(S.phase!=='plan'||(S.deep&&S.deep.run))&&Math.random()<0.1)saveMission(false);}
 }
 function boot(){
   S=newState('psyche');
   $$('.topbar[data-title]').forEach(el=>el.innerHTML=topbar(el.dataset.title));
-  World.init();Deep.initSolar();renderConsole();buildLabels();canvasInput();Opener.bind();bindPov();applyDesignToState();setMute(AUD.muted);
+  World.init();Deep.initSolar();renderConsole();buildLabels();canvasInput();Opener.bind();Tour.bind();bindPov();applyDesignToState();setMute(AUD.muted);
   window.addEventListener('resize',()=>World.resize());window.addEventListener('orientationchange',()=>setTimeout(()=>World.resize(),200));
-  document.addEventListener('visibilitychange',()=>{if(document.hidden&&(S.phase!=='plan'||S.deep))saveMission(false);});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&!App.tour&&(S.phase!=='plan'||S.deep))saveMission(false);});
   go('console');requestAnimationFrame(loop);
   const mig=Saves.migrate();const au=Saves.idx().find(x=>x.auto)||Saves.idx()[0];const ms=au?{s:{phase:'ops'},when:new Date(au.when).toLocaleString()}:null;
-  if(!Opener.seen()){Opener.open();}else introModal();if(!App.opener&&ms){$('#mbox').insertAdjacentHTML('beforeend',`<div class="row" style="margin-top:8px"><button class="btn g" data-act="loadMission">⟲ Resume latest (${esc(ms.when)})</button><button class="btn" data-act="openSaves">💾 Saved games</button></div>`);}if(mig)setTimeout(()=>toast('💾 Your saved mission was moved into the new Saved games list.','g'),800);
+  if(!Opener.seen()){Opener.open();}else introModal(ms);if(mig)setTimeout(()=>toast('💾 Your saved mission was moved into the new Saved games list.','g'),800);
   window.__ABMC_READY=true;
 }
 boot();

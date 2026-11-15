@@ -51,7 +51,7 @@ const ARRIVAL={id:'arrival',title:'Arrival: choose how close to operate',
    {l:'Keep the planned orbit',d:'Stay the course.',ax:{deadline:0,risk:0,power:0,yield:0},fx:()=>{}},
    {l:'Go high & safe',d:'Switch to high orbit: −risk, less power, slower mining & mapping.',ax:{deadline:-1,risk:1,power:1,yield:-1},fx:()=>{S.design.altitude=3;S.res.risk=Math.max(0,S.res.risk-6);S.m=computeMetrics(S.design);}}]};
 
-function randomEvent(cruise){if(App.opener)return;
+function randomEvent(cruise){if(App.opener||App.tour)return;
   const pool=cruise?EVENTS.filter(e=>e.id==='blackout'||e.id==='dust'):EVENTS;
   let tot=pool.reduce((a,e)=>a+e.w,0),r=R()()*tot,ev=pool[0];for(const e of pool){r-=e.w;if(r<=0){ev=e;break;}}
   if(S._decision||S._pendDec)return;
@@ -64,7 +64,7 @@ function arrivalDecision(){if(S.phase==='ops')openDecision(ARRIVAL);}
 // players for the current team
 function players(){return S.team.mode==='solo'?[{name:'You',roles:RKEYS}]:S.team.players;}
 function roleOwner(r){return players().findIndex(p=>p.roles.includes(r));}
-function openDecision(ev){if(App.opener)return;
+function openDecision(ev){if(App.opener||App.tour)return;
   if($('#modal').classList.contains('show')&&$('#mbox').querySelector('[data-act^="sv"],#svren,#svcode')){S._pendDec=ev;return;} // don't pop over the Saved games screen; show it when that closes
   S._pendDec=null;
   S._decision={ev,votes:{},t0:performance.now(),viewer:0};
