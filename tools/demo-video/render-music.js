@@ -1,0 +1,22 @@
+const {chromium}=require('playwright');const fs=require('fs');
+(async()=>{const b=await chromium.launch();const p=await b.newPage();await p.addInitScript(()=>localStorage.setItem('abmc_opener','1'));
+await p.goto('http://localhost:8765/asteroid-belt-mining-continuum.html');await p.waitForFunction(()=>window.__ABMC_READY);
+const b64=await p.evaluate(async()=>{const SR=44100,LEN=29.5;const off=new OfflineAudioContext(2,Math.ceil(SR*LEN),SR);
+ AUD.ctx=off;AUD.muted=false;AUD.master=off.createGain();AUD.master.gain.value=1;
+ const comp=off.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=3;AUD.master.connect(comp);
+ const fin=off.createGain();fin.gain.setValueAtTime(1,0);fin.gain.setValueAtTime(1,LEN-1.0);fin.gain.linearRampToValueAtTime(0.0001,LEN-0.05);comp.connect(fin);fin.connect(off.destination);
+ Music.bus=null;Music.vol=0.9;Music.init();clearInterval(Music.timer);
+ const M=Music;
+ const track=(name,t0,t1,fi=0.6,fo=1.0,vol=1)=>{const g=off.createGain();g.gain.setValueAtTime(0.0001,Math.max(0,t0));g.gain.linearRampToValueAtTime(vol,t0+fi);g.gain.setValueAtTime(vol,t1-fo);g.gain.linearRampToValueAtTime(0.0001,t1);g.connect(M.bus);M.schedule({name,def:TRACKS[name],g,step:0,next:Math.max(0,t0)},t1);};
+ const jingle=t=>{[67,71,74,79,83].forEach((m,i)=>M.note(M.bus,mf(m+12),t+i*0.07,0.5,'triangle',0.1,0.005,0.8));M.note(M.bus,mf(91),t+0.36,0.9,'sine',0.05,0.01,1);};
+ const sting=t=>{[[58,62,65],[60,64,67],[62,66,69,74]].forEach((ch,i)=>ch.forEach(m=>{M.note(M.bus,mf(m+12),t+i*0.32,i===2?1.8:0.3,'square',0.05,0.01,0.6);M.note(M.bus,mf(m),t+i*0.32,i===2?2:0.35,'sawtooth',0.03,0.02,0.4);}));M.note(M.bus,mf(38),t+0.64,1.8,'triangle',0.18,0.01,0);};
+ const whoosh=(t,dur,f0,f1,vol)=>{const n=off.createBuffer(1,SR*dur,SR),d=n.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;const s=off.createBufferSource();s.buffer=n;const f=off.createBiquadFilter();f.type='bandpass';f.Q.value=1.2;f.frequency.setValueAtTime(f0,t);f.frequency.exponentialRampToValueAtTime(f1,t+dur);const g=off.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+dur*0.25);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);s.connect(f);f.connect(g);g.connect(AUD.master);s.start(t);};
+ const blip=(t,f,v=0.08)=>M.note(M.bus,f,t,0.18,'square',v,0.003,0.5);
+ track('calm',0,LEN,0.4,1.8,1.0);
+ const buf=await off.startRendering();
+ const ch=[buf.getChannelData(0),buf.getChannelData(1)];const n=buf.length;let pk=0;for(const c of ch)for(let i=0;i<n;i++)pk=Math.max(pk,Math.abs(c[i]));const gn=0.89/Math.max(pk,1e-3);
+ const ab=new ArrayBuffer(44+n*4),v=new DataView(ab);const ws=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));};
+ ws(0,'RIFF');v.setUint32(4,36+n*4,true);ws(8,'WAVE');ws(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,2,true);v.setUint32(24,SR,true);v.setUint32(28,SR*4,true);v.setUint16(32,4,true);v.setUint16(34,16,true);ws(36,'data');v.setUint32(40,n*4,true);
+ let o=44;for(let i=0;i<n;i++)for(const c of ch){const s=Math.max(-1,Math.min(1,c[i]*gn));v.setInt16(o,s*32767,true);o+=2;}
+ let bin='';const u=new Uint8Array(ab);for(let i=0;i<u.length;i+=32768)bin+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(bin);});
+fs.writeFileSync('/workspace/video2/music.wav',Buffer.from(b64,'base64'));console.log('ok');await b.close();})();
