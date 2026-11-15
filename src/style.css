@@ -274,3 +274,4 @@ body.coachon #v-console .scroll,body.coachon .panelbody{padding-bottom:130px}
 .op-end.show{opacity:1}
 .op-ok{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);font:900 clamp(26px,8vw,48px) var(--mono);color:var(--green);text-shadow:0 0 20px var(--green);animation:opok .9s forwards;pointer-events:none}
 @keyframes opok{0%{transform:translate(-50%,-50%) scale(.4);opacity:0}25%{transform:translate(-50%,-50%) scale(1.15);opacity:1}100%{transform:translate(-50%,-80%) scale(1);opacity:0}}
+.op-sub2{font:800 clamp(10px,3vw,15px) var(--mono);letter-spacing:.22em;color:#bfefff;opacity:.85;margin-top:-6px}
