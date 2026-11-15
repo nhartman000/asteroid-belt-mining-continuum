@@ -1,6 +1,6 @@
 'use strict';
 const App={last:0,acc:0,hudT:0,panelT:0,ptr:false,demo:false,CRUISE_SEC:24,OPS_DPS:1.6,
- refresh(full){const v=View.cur;updateHUD();if(v==='console'){renderStage1();}if(v==='swarm')renderSwarmUI();if(v==='solar'){renderSolarUI();if(View.lock&&full!==false)renderInfo(View.lock);}if(v==='arch'&&full)renderArch();if(v==='fab')renderFab();if(v==='status')renderStatus();if(v==='studio')renderStudio();if(v==='he3')renderHe3();if(v==='pov')Pov.renderTypes();}};
+ refresh(full){const v=View.cur;updateHUD();if(v==='console'){renderStage1();}if(v==='swarm')renderSwarmUI();if(v==='solar'){renderSolarUI();if(View.lock&&full!==false)renderInfo(View.lock);}if(v==='arch'&&full)renderArch();if(v==='fab')renderFab();if(v==='status')renderStatus();if(v==='studio')renderStudio();if(v==='he3')renderHe3();if(v==='deep')renderDeep();if(v==='pov')Pov.renderTypes();}};
 window.addEventListener('pointerdown',()=>App.ptr=true,true);window.addEventListener('pointerup',()=>setTimeout(()=>App.ptr=false,60),true);
 // ---------- coach (90-second demo / tutorial) ----------
 const Coach={i:-1,steps:[
@@ -27,7 +27,7 @@ function briefModal(){const k=S.design.scenario,sc=SCENARIOS[k],t=TMAP[sc.primar
 function aboutModal(){showModal(`<h2>📚 About & data sources</h2><p>Target orbital and physical values come from a <b>bundled snapshot of the JPL Small-Body Database API</b>, fetched ${SBDB_SNAPSHOT.date}. They are labeled <span class="badge b-imp">IMPORTED · JPL SBDB snapshot</span>. Sensor readings during play are <span class="badge b-sim">SIMULATED</span> and never measurements. Live fetches are only labeled <span class="badge b-cy">LIVE</span> if a request to JPL actually succeeds.</p>
  <table class="tb"><tr><th>Target</th><th>a (AU)</th><th>e</th><th>i°</th><th>Period (d)</th><th>D (km)</th><th>Type</th></tr>${TARGETS.map(t=>{const s=SBDB_SNAPSHOT.data[t.id];return`<tr><td>${esc(s.fullname)}</td><td>${s.a}</td><td>${s.e}</td><td>${s.i}</td><td>${s.per_d}</td><td>${s.diameter_km}</td><td>${[s.spec_B,s.spec_T].filter(Boolean).join('/')}</td></tr>`;}).join('')}</table>
  <div class="lbl" style="margin-top:8px">Sources</div>${SOURCES.map(([n,u])=>`<div style="font-size:13px;margin:4px 0">• <a href="${u}" target="_blank" rel="noopener">${n}</a></div>`).join('')}
- <div class="lbl" style="margin-top:8px">Models used</div><p style="font-size:13px">Hohmann transfer time and Δv; Tsiolkovsky rocket equation; solar flux ∝ 1/r²; radio light-time 8.317 min/AU; equilibrium temperature T ≈ 278 K·(1−A)<sup>¼</sup>/√a; water electrolysis minimum ≈ 4.4 kWh/kg. Game rates (mining, build speed, events, composition fractions) are simplified and labeled simulated. Not a flight-certified planning system.</p>`);}
+ <div class="lbl" style="margin-top:8px">Models used</div><p style="font-size:13px">Hohmann transfer time and Δv; Tsiolkovsky rocket equation; solar flux ∝ 1/r²; radio light-time 8.317 min/AU; equilibrium temperature T ≈ 278 K·(1−A)<sup>¼</sup>/√a; water electrolysis minimum ≈ 4.4 kWh/kg. Game rates (mining, build speed, events, composition fractions) are simplified and labeled simulated. Stage 3 (deep space): probe trip time = distance ÷ cruise speed; accelerate-and-brake mass ratio = e<sup>2v/vₑ</sup>; light-time = 1 year per light-year; exoplanet values from the bundled NASA Exoplanet Archive snapshot (${EXO_SNAPSHOT}); the spiral-arm map is a procedural model; interstellar propulsion and colony resources are FUTURE TECH / SPECULATIVE. Not a flight-certified planning system.</p>`);}
 function dataModal(){const cur=S.data.mode;showModal(`<h2>🛰 Data source</h2><p>Choose where target reference values come from. Active: <b>${esc(activeRef(S.design.primary).src)}</b></p>
  <div class="opts">${[['snapshot','JPL SBDB snapshot',`Bundled real values fetched ${SBDB_SNAPSHOT.date} (IMPORTED).`],['sim','Simulated','Built-in game model values — labeled SIMULATED.'],['user','Your import',S.data.label&&cur==='user'?esc(S.data.label):'Paste or load SBDB JSON / CSV below.']].map(([k,a,b])=>`<button class="opt ${cur===k?'on':''}" data-act="dataMode" data-val="${k}"><b>${a}</b><small>${b}</small></button>`).join('')}</div>
  <div class="card" style="margin-top:10px"><h4>Import NASA/JPL data</h4><p style="font-size:12.5px">Accepts SBDB API JSON (e.g. <a href="https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=psyche&phys-par=1" target="_blank" rel="noopener">sbdb.api?sstr=psyche&amp;phys-par=1</a>), an array of those, SBDB Query API JSON ({fields,data}), or CSV with columns name,a,e,i,diameter,albedo,rot_per.</p>
@@ -153,6 +153,18 @@ const ACT={
  tutorial:()=>{hideModal();go('console');Coach.start();toast('Tutorial: follow the gold coach card at the bottom.','y');},
  demo:()=>{hideModal();startDemo();},planStart:()=>{hideModal();go('studio');briefModal();},
  he3Toggle:el=>He3.toggle(el.dataset.id),
+ deepTab:el=>{Deep.st().tab=el.dataset.v;$('#deep-body')&&($('#deep-body').parentElement.scrollTop=0);App.refresh(true);},
+ deepRate:el=>{const D=Deep.st();D.rate=+el.dataset.v;D.run=true;App.refresh(true);},
+ deepRun:()=>{const D=Deep.st();D.run=!D.run;App.refresh(true);},
+ deepChain:()=>{const D=Deep.st();D.run=true;if(D.rate<10)D.rate=10;Deep.log('🛰 Waystation chain extending beyond the belt');App.refresh(true);},
+ deepSandbox:()=>{const D=Deep.st();D.sandbox=true;D.run=true;if(D.rate<10)D.rate=10;Deep.log('☄ Sandbox: simulated belt network assumed');toast('☄ Sandbox belt network assumed — the chain starts extending outward.','y');Deep.redrawChain();App.refresh(true);},
+ deepProp:el=>{const D=Deep.st();D.prop=el.dataset.v;D.v=DPROPS[D.prop].v0;App.refresh(true);},
+ deepPick:el=>{const D=Deep.st();D.pick[el.dataset.id]=!D.pick[el.dataset.id];App.refresh(true);},
+ deepAuto:()=>{Deep.autoPick();App.refresh(true);},
+ deepLaunch:()=>Deep.launch(),deepCrew:()=>Deep.crewGo(),
+ deepSel:el=>Deep.select(el.dataset.id),deepScale:el=>Deep.scaleTo(el.dataset.v),
+ deepSheet:el=>{const s=$('#v-deep .deepsheet');s.classList.toggle('min');el.textContent=s.classList.contains('min')?'▴':'▾';},
+ openDeep:()=>Deep.enter(false),
  stTab:el=>{Studio.tab=el.dataset.k;App.refresh(true);},stP:el=>{Studio.cur=el.dataset.k;App.refresh(true);},stT:el=>Studio.apply(el.dataset.id),stUndo:()=>Studio.undo(),stReset:()=>Studio.reset(),stBranch:el=>Studio.branch(+el.dataset.k),
  stAuto:()=>{if(S.phase!=='plan')return;const ok=Studio.autoPath(Studio.cur);Studio.D().committed=false;toast(ok?'Suggested path applied — each step stayed inside Ω(𝒞). Review, then commit.':'No admissible path found from here — try Baseline.',ok?'':'y');App.refresh(true);},
  stCommit:()=>{if(S.phase!=='plan')return;Studio.commitOne(Studio.cur);App.refresh(true);},stAutoAll:()=>{if(S.phase!=='plan')return;Studio.autoAll();toast('Remaining drone types auto-designed and committed. Stage 1 complete.','g');App.refresh(true);},
@@ -161,7 +173,7 @@ const ACT={
 };
 document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;if(e.target.closest('#modal')&&!e.target.closest('.mbox')){return;}const f=ACT[el.dataset.act];if(f){audioInit();if(!['pause','mute'].includes(el.dataset.act))sfx('tap');f(el,e);}});
 $('#modal').addEventListener('click',e=>{if(e.target.id==='modal'&&!$('#modal').dataset.sticky)hideModal();});
-document.addEventListener('input',e=>{const k=e.target.dataset.inp;if(k==='mvol'||k==='svol'){audioInit();(k==='mvol'?Music.setVol:setSfxVol).call(Music,+e.target.value);const b=e.target.parentElement.querySelector('b');if(b)b.textContent=Math.round(e.target.value*100)+'%';return;}if(k==='he3isp'){He3.st().isp=+e.target.value;const y=$('#he3-body').scrollTop;renderHe3();$('#he3-body').scrollTop=y;return;}if(!k||S.phase!=='plan')return;const v=+e.target.value;const d=S.design;
+document.addEventListener('input',e=>{const k=e.target.dataset.inp;if(k==='mvol'||k==='svol'){audioInit();(k==='mvol'?Music.setVol:setSfxVol).call(Music,+e.target.value);const b=e.target.parentElement.querySelector('b');if(b)b.textContent=Math.round(e.target.value*100)+'%';return;}if(k==='deepV'||k==='deepT'){const D=Deep.st();if(k==='deepV')D.v=Math.exp(+e.target.value);else D.tmax=Math.round(Math.exp(+e.target.value));const b=e.target.parentElement.querySelector('b');if(b)b.textContent=k==='deepV'?(Deep.vOf()*100).toFixed(Deep.vOf()<0.01?2:1)+'% c':fmtYr(D.tmax);clearTimeout(Deep._it);Deep._it=setTimeout(()=>{e.target.blur();renderDeep();},450);return;}if(k==='he3isp'){He3.st().isp=+e.target.value;const y=$('#he3-body').scrollTop;renderHe3();$('#he3-body').scrollTop=y;return;}if(!k||S.phase!=='plan')return;const v=+e.target.value;const d=S.design;
   if(k.startsWith('mix_')){Studio.setMix(k.slice(4),v);clearTimeout(App._inT);App._inT=setTimeout(()=>{const y=$('#v-studio .panelbody').scrollTop;renderStudio();$('#v-studio .panelbody').scrollTop=y;},120);return;}
   if(k==='terraN'){d.studio.terraN=[0,50,30,20,10,5,3][v];Studio.sync();const y=$('#v-studio .panelbody').scrollTop;renderStudio();$('#v-studio .panelbody').scrollTop=y;return;}
   if(k==='closure'||k==='kits')d.rep[k]=v;else if(k==='altitude')d.altitude=v;else if(k==='total'){d.fleet.total=v;Studio.ensure(d);Studio.normMix(d);Studio.sync();if(View.cur==='studio'){const y=$('#v-studio .panelbody').scrollTop;renderStudio();$('#v-studio .panelbody').scrollTop=y;return;}}else if(GKEYS.includes(k)){d.fleet[k]=Math.min(v,d.fleet.total);rebalanceFleet(d,k);}
@@ -180,15 +192,15 @@ function loop(now){requestAnimationFrame(loop);const t=now/1000;let dt=Math.min(
   // waypoint expiry
   if(S.waypoint){const wp=S.waypoint;const c=World.groupCentroid(wp.groups[0]);const p=new V3().fromArray(wp.pos);if(!wp.reached&&c.distanceTo(p)<wp.scale*1.4){wp.reached=performance.now();}
     if((wp.reached&&performance.now()-wp.reached>3500)||performance.now()-wp.t0>25000){S.waypoint=null;toast('Waypoint reached — drones resume their assignments.');App.refresh();}}
-  World.frame(S.paused&&View.cur!=='pov'?dt*0.15:dt,t);updateLabels();He3.updLabels();
+  World.frame(S.paused&&View.cur!=='pov'?dt*0.15:dt,t);updateLabels();He3.updLabels();Deep.frame(dt);Deep.updLabels();
   App.hudT+=dt;if(App.hudT>0.25){App.hudT=0;updateHUD();Coach.tick();}
-  App.panelT+=dt;if(App.panelT>1){App.panelT=0;if(!App.ptr&&!$('#modal').classList.contains('show')||View.cur==='swarm'){if(View.cur==='swarm')renderSwarmUI();if(View.cur==='fab'&&!App.ptr)renderFab();if(View.cur==='status'&&!App.ptr){const y=$('#v-status .panelbody').scrollTop;renderStatus();$('#v-status .panelbody').scrollTop=y;}if(View.cur==='solar'){renderSolarUI();}}
+  App.panelT+=dt;if(App.panelT>1){App.panelT=0;if(!App.ptr&&!$('#modal').classList.contains('show')||View.cur==='swarm'){if(View.cur==='swarm')renderSwarmUI();if(View.cur==='fab'&&!App.ptr)renderFab();if(View.cur==='status'&&!App.ptr){const y=$('#v-status .panelbody').scrollTop;renderStatus();$('#v-status .panelbody').scrollTop=y;}if(View.cur==='solar'){renderSolarUI();}if(View.cur==='deep'&&S.deep&&S.deep.run&&!App.ptr){const sh=$('#v-deep .deepsheet');const y=sh.scrollTop;renderDeep();sh.scrollTop=y;}}
     if(S.phase!=='plan'&&Math.random()<0.1)saveMission(false);}
 }
 function boot(){
   S=newState('psyche');
   $$('.topbar[data-title]').forEach(el=>el.innerHTML=topbar(el.dataset.title));
-  World.init();renderConsole();buildLabels();canvasInput();Opener.bind();bindPov();applyDesignToState();setMute(AUD.muted);
+  World.init();Deep.initSolar();renderConsole();buildLabels();canvasInput();Opener.bind();bindPov();applyDesignToState();setMute(AUD.muted);
   window.addEventListener('resize',()=>World.resize());window.addEventListener('orientationchange',()=>setTimeout(()=>World.resize(),200));
   document.addEventListener('visibilitychange',()=>{if(document.hidden&&S.phase!=='plan')saveMission(false);});
   go('console');requestAnimationFrame(loop);

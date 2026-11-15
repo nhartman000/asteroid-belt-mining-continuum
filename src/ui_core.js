@@ -18,7 +18,7 @@ function conceptNow(k){if(!S.m)return'';const m=S.m,d=S.design;const L=s=>`<div 
 function topbar(title){return `<button class="back" data-act="back" aria-label="Back to Console">◀ Console</button><div class="ttl">${title}<small class="scnline">—</small></div><span class="badge b-sim dsrc" data-act="openData">DATA</span><div class="clock clk">T+0 d<small>PLAN</small></div><button class="ib mute" data-act="mute">🔊</button><button class="ib pausebtn" data-act="pause">⏸</button>`;}
 function go(v){
   const prev=View.cur;View.cur=v;$$('.view').forEach(el=>el.classList.toggle('active',el.id==='v-'+v));
-  $('#dim').classList.toggle('off',v==='solar'||v==='swarm'||v==='pov'||v==='he3'||v==='opener');
+  $('#dim').classList.toggle('off',v==='solar'||v==='swarm'||v==='pov'||v==='he3'||v==='opener'||v==='deep');Deep.show(v==='deep');
   if(v==='he3'||He3.built)He3.show(v==='he3');
   if(v!=='console')S.flags&&(S.flags[v]=true);
   const W=World,c=W.cam;c.auto=0;c.follow=null;
@@ -51,6 +51,11 @@ function canvasInput(){
   cv.addEventListener('touchstart',e=>{e.preventDefault();audioInit();const t=e.touches;
     if(t.length===1&&!Gs.two)startSingle(t[0].clientX,t[0].clientY);
     if(t.length===2){Gs.two=true;Gs.down=false;clearTimeout(Gs.hold);if(S.rally)endRally();Gs.ay=(t[0].clientY+t[1].clientY)/2;Gs.pd=Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);}},{passive:false});
+  const two0=t=>{Gs.two=true;Gs.down=false;clearTimeout(Gs.hold);if(S.rally)endRally();Gs.ay=(t[0].clientY+t[1].clientY)/2;Gs.pd=Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);};
+  // two-finger zoom also works when a finger lands on a map label (labels sit in .ovl overlays)
+  $$('.ovl').forEach(ov=>{ov.addEventListener('touchstart',e=>{if(e.touches.length>=2){e.preventDefault();two0(e.touches);}},{passive:false});
+    ov.addEventListener('touchmove',e=>{if(Gs.two&&e.touches.length>=2){e.preventDefault();cv.dispatchEvent(new TouchEvent('touchmove',{touches:[...e.touches],cancelable:true}));}},{passive:false});
+    ov.addEventListener('touchend',e=>{if(e.touches.length===0&&Gs.two){Gs.two=false;}},{passive:true});});
   cv.addEventListener('touchmove',e=>{e.preventDefault();const t=e.touches;
     if(Gs.two&&t.length>=2){const ay=(t[0].clientY+t[1].clientY)/2,pd=Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
       const dy=ay-Gs.ay; // swipe DOWN (dy>0) => zoom IN ; swipe UP => zoom OUT
@@ -67,6 +72,7 @@ function canvasInput(){
 let zhT=0;function showZoomHint(inn){const now=performance.now();if(now-zhT<600)return;zhT=now;const el=$('#v-'+View.cur+' .hint');if(el){el.innerHTML=inn?'🔍 <b>Zooming IN</b> (two-finger swipe down)':'🔭 <b>Zooming OUT</b> (two-finger swipe up)';clearTimeout(el._t);el._t=setTimeout(()=>App.refresh(),1500);}}
 function tap(x,y){
   if(View.cur==='opener'){Opener.tap(x,y);return;}
+  if(View.cur==='deep'){Deep.tap(x,y);return;}
   if(View.cur==='solar'){const id=World.pickTarget(x,y);if(id)selectTarget(id);return;}
   if(View.cur==='swarm'){const id=World.pickTarget(x,y,26);if(id){assignTo(id);return;}
     const p=World.pointOnFocusPlane(x,y);const sc=clamp(World.cam.dist*0.09,0.08,3);S.waypoint={pos:p.toArray(),groups:selGroups(),scale:sc,t0:performance.now(),reached:0};
@@ -95,7 +101,7 @@ function buildLabels(){['solar','swarm'].forEach(v=>{const ov=$('#lab-'+v);Label
 const _o={};
 function updateLabels(){const v=View.cur;if(v!=='solar'&&v!=='swarm')return;const d=S.design;
   Labels[v].forEach((b,k)=>{const t=TARGETS[k];World.project(World.T[t.id].pos,_o);
-    const show=_o.vis&&(v==='solar'||d.targets.includes(t.id)||World.cam.dist<30);b.style.display=show?'flex':'none';if(!show)return;
+    const show=_o.vis&&!(v==='solar'&&World.cam.dist>230&&!(View.lock===t.id))&&(v==='solar'||d.targets.includes(t.id)||World.cam.dist<30);b.style.display=show?'flex':'none';if(!show)return;
     b.style.transform=`translate(${_o.x}px,${_o.y}px) translate(-50%,-150%)`;
     const sel=d.targets.includes(t.id),prim=d.primary===t.id;const cls='tlabel'+(sel?' sel':'')+(prim?' prim':'');if(b.className!==cls)b.className=cls;
     const dots=GKEYS.filter(g=>World.groupTarget(g)===t.id&&sel).map(g=>`<i class="gd" style="background:${GROUPS[g].col}"></i>`).join('');const mf=S.mfac[t.id].online?'⛽':'';

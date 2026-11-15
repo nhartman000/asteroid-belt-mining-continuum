@@ -132,7 +132,7 @@ W.updateRocks=function(t){const m4=new THREE.Matrix4(),q=new THREE.Quaternion(),
 // ---------- camera ----------
 const ease=t=>t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 W.flyTo=function(focus,dist,dur=1.6,follow=null){const c=W.cam;c.tw={f0:c.focus.clone(),f1:focus.clone(),d0:c.dist,d1:dist,t:0,dur};c.follow=follow;sfx('whoosh');};
-W.zoom=function(f){const c=W.cam;if(c.tw){c.tw.d1*=f;}c.dist=clamp(c.dist*f,W.minDist(),View.cur==='he3'?1500:600);};
+W.zoom=function(f){if(View.cur==='deep'){Deep.zoom(f);return;}const c=W.cam;if(View.cur==='solar'&&f>1.001&&c.dist>=1395&&!c.tw){Deep.enter(true);return;}if(c.tw){c.tw.d1*=f;}c.dist=clamp(c.dist*f,W.minDist(),View.cur==='he3'?1500:View.cur==='solar'?1400:600);};
 W.minDist=function(){if(View.cur==='solar'&&View.lock)return TMAP[View.lock].r*1.6;if(View.cur==='swarm')return 0.4;return 3;};
 W.camUpdate=function(dt){const c=W.cam;
   if(c.tw){c.tw.t+=dt/c.tw.dur;const k=ease(Math.min(1,c.tw.t));if(c.follow){c.tw.f1.copy(c.follow());}c.focus.lerpVectors(c.tw.f0,c.tw.f1,k);c.dist=Math.exp(lerp(Math.log(c.tw.d0),Math.log(c.tw.d1),k));if(c.tw.t>=1)c.tw=null;}
@@ -270,7 +270,7 @@ W.frame=function(dt,t){
   if(typeof Continuum!=='undefined')Continuum.frame(dt,t);
   if(View.cur==='pov')Pov.frame(dt,t);else{W.camUpdate(dt);W.dust.visible=false;W.beam.visible=false;W.beamGlow.visible=false;}
   if(W._shake>0){W._shake-=dt;camera.position.x+=(Math.random()-0.5)*W._shake*0.05*W.cam.dist*0.05;camera.position.y+=(Math.random()-0.5)*W._shake*0.05*W.cam.dist*0.05;}
-  renderer.render(scene,camera);
+  if(View.cur==='deep'&&Deep.built)Deep.render(renderer,dt);else renderer.render(scene,camera);
 };
 let pathKey='';
 W.updatePaths=function(){const key=S.phase+'|'+S.design.targets.join(',')+'|'+GKEYS.map(groupTarget).join(',')+'|'+S.design.multi;if(key===pathKey)return;pathKey=key;

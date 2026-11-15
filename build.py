@@ -3,7 +3,7 @@ os.chdir('/workspace/asteroid-mining')
 three=open('three.min.js').read()
 three=re.sub(r"^console\.warn\([^;]*\);","",three,count=1)
 css=open('src/style.css').read();body=open('src/body.html').read()
-files=['sbdb_snapshot','data','state','events','continuum','studio','audio','music','world','ui_core','pov','panels','he3','opener','main']
+files=['sbdb_snapshot','data','exo_snapshot','deep_data','state','events','continuum','studio','audio','music','world','ui_core','pov','panels','he3','deep','opener','main']
 js='\n'.join(open(f'src/{f}.js').read() for f in files)
 html=f'''<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">

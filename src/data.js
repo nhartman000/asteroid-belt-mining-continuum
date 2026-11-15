@@ -25,7 +25,8 @@ const TMAP = Object.fromEntries(TARGETS.map(t=>[t.id,t]));
 const PLANETS = [
  {name:'Mercury',a:0.39,r:0.22,c:'#9b938a',ang:140},{name:'Venus',a:0.72,r:0.4,c:'#e6c98f',ang:250},
  {name:'Earth',a:1.0,r:0.45,c:'#3a7bd5',ang:0},{name:'Mars',a:1.52,r:0.32,c:'#c1440e',ang:205},
- {name:'Jupiter',a:5.2,r:2.2,c:'#d8b48a',ang:100},{name:'Saturn',a:9.5,r:1.9,c:'#e3cf9c',ang:-120,ring:true}];
+ {name:'Jupiter',a:5.2,r:2.2,c:'#d8b48a',ang:100},{name:'Saturn',a:9.54,r:1.9,c:'#e3cf9c',ang:-120,ring:true},
+ {name:'Uranus',a:19.19,r:1.4,c:'#7fd8e8',ang:35},{name:'Neptune',a:30.07,r:1.35,c:'#4a6cf0',ang:-160}];
 const GROUPS = {
  miner:{name:'Miners',col:'#ffc640',rgb:[1,0.78,0.25],role:'Travel to asteroids and mine ore.'},
  flyback:{name:'Flyback',col:'#3ef0ff',rgb:[0.24,0.94,1],role:'Haul ore back and build/support drone factories.'},
@@ -137,7 +138,13 @@ const SOURCES = [
  ['NASA OSIRIS-APEX (Apophis)','https://science.nasa.gov/mission/osiris-apex/'],
  ['NASA NEAR Shoemaker (Eros)','https://science.nasa.gov/mission/near-shoemaker/'],
  ['NASA Basics of Space Flight (orbits, Hohmann transfers, rocket equation)','https://science.nasa.gov/learn/basics-of-space-flight/'],
- ['NASA Deep Space Network (communications)','https://www.nasa.gov/communicating-with-missions/dsn/']];
+ ['NASA Deep Space Network (communications)','https://www.nasa.gov/communicating-with-missions/dsn/'],
+ ['NASA Exoplanet Archive (Planetary Systems Composite table; bundled snapshot fetched 2026-11-15)','https://exoplanetarchive.ipac.caltech.edu/'],
+ ['JPL Approximate Positions of the Planets (mean orbital elements)','https://ssd.jpl.nasa.gov/planets/approx_pos.html'],
+ ['NASA Science: Solar System (planets, moons, dwarf planets)','https://science.nasa.gov/solar-system/'],
+ ['NASA Voyager (heliopause crossing, interstellar space)','https://science.nasa.gov/mission/voyager/'],
+ ['Breakthrough Starshot (laser light-sail concept — future tech)','https://breakthroughinitiatives.org/initiative/3'],
+ ['Project Daedalus, British Interplanetary Society (fusion probe study — future tech)','https://www.bis-space.com/what-we-do/projects/project-daedalus/']];
 // active reference values for a target, with provenance label
 function activeRef(id){
   const t=TMAP[id],snap=SBDB_SNAPSHOT.data[id];const mode=(typeof S!=='undefined'&&S&&S.data)?S.data.mode:'snapshot';
