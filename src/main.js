@@ -161,7 +161,7 @@ const ACT={
  deepProp:el=>{const D=Deep.st();D.prop=el.dataset.v;D.v=DPROPS[D.prop].v0;App.refresh(true);},
  deepPick:el=>{const D=Deep.st();D.pick[el.dataset.id]=!D.pick[el.dataset.id];App.refresh(true);},
  deepAuto:()=>{Deep.autoPick();App.refresh(true);},
- deepLaunch:()=>Deep.launch(),deepCrew:()=>Deep.crewGo(),
+ deepLaunch:()=>Deep.launch(),deepCrew:()=>Deep.shipGo(),deepFollow:()=>Deep.followShip(),
  deepSel:el=>Deep.select(el.dataset.id),deepScale:el=>Deep.scaleTo(el.dataset.v),
  deepSheet:el=>{const s=$('#v-deep .deepsheet');s.classList.toggle('min');el.textContent=s.classList.contains('min')?'▴':'▾';},
  openDeep:()=>Deep.enter(false),
