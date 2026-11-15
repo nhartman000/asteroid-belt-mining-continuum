@@ -54,7 +54,7 @@ const Opener={alive:0,phase:'',prompt:null,hits:{},
   // 6 · WAYSTATION + crewed ship
   ['ceres','vesta'].forEach(id=>{const w=S.ways[id]||(S.ways[id]={fuel:0,parts:0,water:0,proc:0});w.fuel=Math.max(w.fuel,id==='ceres'?260:180);w.water=Math.max(w.water,200);w.hab={food:1,water:1,air:1,shelter:1,power:1};w._habT=1;});
   Music.jingle();this.cap('WAYSTATION ONLINE','Ice → H₂/O₂ propellant · habitat ready for crew');W.burst(W.T.ceres.pos,[0.4,1,0.6],120,1.4);if(!await this.wait(1400,tok))return;
-  Continuum.dispatch();this.cap('REFUEL','The Marauder’s Daughter tops up along the chain');this.follow(()=>W.ship.position,9,1.2);
+  Continuum.dispatch();this.cap('REFUEL','The Marauder tops up along the chain');this.follow(()=>W.ship.position,9,1.2);
   await this.until(()=>S.ship&&S.ship.status==='done',13000,tok);if(!this.ok(tok))return;
   // END
   gen.classList.remove('show');$('#op-cap').classList.remove('show');$('#op-end').classList.add('show');sfx('success');

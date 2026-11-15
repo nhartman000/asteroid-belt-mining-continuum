@@ -4,7 +4,7 @@ const View={cur:'console',lock:null,track:'fleet'};
 const VIEWS={solar:'Solar System & Targets',swarm:'Swarm Operations',pov:'Individual Drone POV',fab:'Drone Fabrication',arch:'Mission Architecture',status:'Mission Status & Debrief'};
 function toast(html,cls=''){if(App.opener)return;const el=document.createElement('div');el.className='toast '+cls;el.innerHTML=html;$('#toasts').appendChild(el);setTimeout(()=>{el.style.transition='opacity .4s';el.style.opacity='0';setTimeout(()=>el.remove(),400);},cls==='r'?5000:3600);while($('#toasts').children.length>2)$('#toasts').firstChild.remove();}
 function showModal(html,sticky=false){$('#mbox').innerHTML=(sticky?'':'<button class="ib" style="float:right" data-act="closeModal" aria-label="Close">✕</button>')+html;$('#modal').classList.add('show');$('#modal').dataset.sticky=sticky?'1':'';}
-function hideModal(){$('#modal').classList.remove('show');}
+function hideModal(){$('#modal').classList.remove('show');if(S&&S._pendDec){const e=S._pendDec;S._pendDec=null;setTimeout(()=>{if(!S._decision)openDecision(e);},0);}}
 function concept(k){if(App.opener)return;if(!S.concepts)S.concepts={};if(S.concepts[k]||localStorage.getItem('abmc_tips')==='0')return;const c=CONCEPTS[k];if(!c)return;
   const now=Date.now();if(now-(window._lastC||0)<9000){return;}window._lastC=now;S.concepts[k]=1;setTimeout(()=>toast(`💡 <b>${c.t}</b> — ${c.x.split('. ')[0]}. <button data-act="concept" data-k="${k}">Learn more</button>`,''),400);}
 function conceptModal(k){const c=CONCEPTS[k];showModal(`<h2>💡 ${c.t}</h2><p>${c.x}</p>${conceptNow(k)}<p><a href="${c.l}" target="_blank" rel="noopener">Learn more (NASA) ↗</a></p>`);}

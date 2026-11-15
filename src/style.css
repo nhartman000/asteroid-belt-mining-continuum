@@ -301,3 +301,13 @@ label.sl{display:flex;flex-direction:column;font-size:12px;margin:6px 0}label.sl
 .shipl small{color:var(--txt);font-weight:600;font-size:10px}.shipl .bars{display:flex;gap:6px}.shipl .bars i{font-style:normal;font-size:9.5px;color:var(--txt);padding:1px 4px;border-radius:5px;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 45%,transparent) var(--v),rgba(255,255,255,.06) var(--v))}
 .plab.dep{color:var(--cyan);font-size:9.5px}
 .shipg{display:grid;grid-template-columns:auto 1fr;gap:4px 8px;align-items:center;font-size:11.5px;margin:4px 0}
+
+/* ---- saved games ---- */
+.savelist{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.savecard{display:grid;grid-template-columns:96px 1fr;gap:6px 10px;padding:10px;border-radius:14px;border:1px solid var(--line);background:rgba(62,240,255,.05)}
+.savecard img,.savecard .noimg{width:96px;height:54px;border-radius:8px;object-fit:cover;border:1px solid var(--line);background:#020814;display:flex;align-items:center;justify-content:center;font-size:24px}
+.savecard .si{min-width:0;font-size:12.5px;display:flex;flex-direction:column;gap:3px}.savecard .sn{font-size:14px;word-break:break-word}.savecard .st{font-size:11px}
+.savecard .sa{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.savecard .sa .btn{min-height:40px;padding:8px 10px;font-size:12.5px}
+.savecard .sa .sp{flex:1 1 12px;min-width:12px}.savecard .svdel{margin-left:auto;opacity:.85}
+.vault{margin:6px 0;padding:6px 8px;border-radius:10px;border:1px dashed rgba(255,92,240,.45);background:rgba(255,92,240,.05)}
+.savecard .si .badge{align-self:flex-start}

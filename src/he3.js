@@ -54,7 +54,7 @@ function renderHe3(){const el=$('#he3-body');if(!el)return;
  ${c.sel.length?c.sel.map(s=>{const x=He3.score(s);return`<div class="card he3c"><h4>${s.ic} ${s.n} <span class="lbl">${s.kind}</span> <b style="float:right;color:${x.total>0.3?'var(--green)':x.total>0.15?'var(--gold)':'var(--red)'}">${fmt(x.total*100)}/100</b></h4>
   <div class="he3g"><span>He-3 abundance</span>${bar(s.aS,'#c58bff')}<span>Extraction ease</span>${bar(s.eS,'#ffc640')}<span>Near the route (${fmt(x.dist,1)} AU off)</span>${bar(x.routeS,'#3ef0ff')}<span>Δv access ≈ ${fmt(x.dv,1)} km/s</span>${bar(x.dvS,'#5dff8a')}<span>Power</span>${bar(s.pS,'#ffe08a')}<span>Comms (${s.ltxt} one-way)</span>${bar(x.cS,'#7fd8ff')}</div>
   <p style="font-size:12px;margin:6px 0 0"><b>Where:</b> ${s.ab}<br><b>Extraction:</b> ${s.ex}${s.dvn?'<br><b>Δv:</b> '+s.dvn:''}<br><b>Power:</b> ${s.pw}</p></div>`;}).join(''):'<div class="card"><p>No sites linked yet. Start with the one you think is best — then try an asteroid and see why it scores low.</p></div>'}
- <div class="card"><h4>Projected Δv for the Marauder’s Daughter · rocket equation <span class="badge b-sim">MODEL</span></h4>
+ <div class="card"><h4>Projected Δv for the Marauder · rocket equation <span class="badge b-sim">MODEL</span></h4>
   <div class="meter"><div class="mh"><span>Conceptual fusion exhaust Isp (literature range 10⁴–10⁵ s)</span><b>${fmt(st.isp)} s</b></div><input type="range" min="10000" max="100000" step="5000" value="${st.isp}" data-inp="he3isp"></div>
   <div class="meter"><div class="mh"><span>He-3 supply readiness from linked sites</span><b>${fmt(c.supply*100)}%</b></div>${bar(c.supply,'#c58bff')}</div>
   <table class="tb"><tr><th>Engine</th><th>Isp</th><th>Δv with your chain</th></tr>

@@ -8,7 +8,7 @@ const Coach={i:-1,steps:[
  {t:'② Open <b>Swarm Operations</b>. <b>Tap</b> empty space = waypoint. <b>Press & hold</b> = rally. Release = resume.',done:()=>Coach.rallied},
  {t:'③ Open <b>Drone POV</b>. Steer with the stick, hold <b>THRUST</b>, aim at a rock and hold <b>MINE</b>, then <b>TRANSFER</b>.',done:()=>Coach.transferred},
  {t:'④ Open <b>Drone Fabrication</b>: drones build drones. Watch the generation counter and waystation fuel stocks.',done:()=>View.cur==='fab'},
- {t:'⑤ Open <b>Mission Status</b>: dispatch the crewed ship <b>the Marauder’s Daughter</b> along the refuel chain, then <b>End mission</b> for the debrief.',done:()=>S.phase==='ended'}],
+ {t:'⑤ Open <b>Mission Status</b>: dispatch the crewed ship <b>the Marauder</b> along the refuel chain, then <b>End mission</b> for the debrief.',done:()=>S.phase==='ended'}],
  start(){this.i=0;this.rallied=false;this.transferred=false;this.show();},
  show(){let el=$('#coach');if(!el){el=document.createElement('div');el.id='coach';el.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:30;width:min(520px,94vw);background:rgba(6,18,40,.96);border:1px solid var(--gold);border-radius:14px;padding:10px 12px;font-size:13.5px;box-shadow:0 0 24px rgba(255,198,64,.3);display:flex;gap:8px;align-items:center';document.body.appendChild(el);}
   if(this.i<0||this.i>=this.steps.length){el.remove();document.body.classList.remove('coaching','coachon');return;}document.body.classList.toggle('coaching',!['console','fab','arch','status'].includes(View.cur));document.body.classList.add('coachon');el.innerHTML=`<div style="flex:1"><span class="lbl">Demo ${this.i+1}/${this.steps.length}</span><br>${this.steps[this.i].t}</div><button class="ib" data-act="coachNext">▶</button><button class="ib" data-act="coachX">✕</button>`;
@@ -18,13 +18,13 @@ const Coach={i:-1,steps:[
 function introModal(){showModal(`<div class="logo" style="font-size:26px;text-align:left">Operation<br>Cosmoform</div><div class="lbl">Asteroid Belt Mining Continuum</div>
  <p><b>Mission thesis: automate assisted travel.</b> Replicator drones launch, pick the best site, land and swarm, turn themselves into factories, mine, and build more drones. New drones carry seed payloads onward and build <b>waystations</b> that turn water ice into propellant — so crewed ships can refuel along the way.</p>
  <p style="font-size:13px"><b>Stage 1</b> starts in the Drone Design Studio: engineer four drone families (replicators, builders, miners, payload transporters) plus terraformer kits, using the TCTA design method, then set the fleet ratio.</p>
- <p style="font-size:13px;color:var(--dim)">Built on open NASA/JPL data (JPL Small-Body Database snapshot) with simulated sensors, clearly labeled. Arcade game — not a flight-certified planner. No login, works offline.</p>
+ <p style="font-size:13px;color:var(--dim)">Built on open NASA/JPL data (JPL Small-Body Database snapshot) with simulated sensors, clearly labeled. Arcade game — not a flight-certified planner. No login, works offline.<br>NASA Space Apps Challenge entry · not affiliated with or endorsed by NASA.</p>
  <div class="row"><button class="btn solid big" data-act="demo">▶ 90-second demo</button><button class="btn y big" data-act="planStart">🛠 Stage 1: design drones</button></div>
- <div class="row" style="margin-top:8px"><button class="btn" data-act="openCrew">👥 Team play (1–4, same device)</button><button class="btn" data-act="openAbout">📚 Data sources</button><button class="btn" data-act="tutorial">🎓 Tutorial</button></div>`,true);}
+ <div class="row" style="margin-top:8px"><button class="btn" data-act="openSaves">💾 Saved games</button><button class="btn" data-act="openCrew">👥 Team play (1–4, same device)</button><button class="btn" data-act="openAbout">📚 Data sources</button><button class="btn" data-act="tutorial">🎓 Tutorial</button></div>`,true);}
 function briefModal(){const k=S.design.scenario,sc=SCENARIOS[k],t=TMAP[sc.primary];showModal(`<h2>${sc.icon} ${sc.name}</h2>${STORY[k].map(p=>`<p>${p}</p>`).join('')}
  <div class="card"><div class="lbl">Objectives</div>${sc.goals.map(g=>`<div>• ${g.label}${g.u?` (${g.v} ${g.u})`:''}</div>`).join('')||'None — sandbox'}<div class="lbl" style="margin-top:6px">Operations deadline</div>${sc.deadline>9000?'None':Math.round(sc.deadline*DIFFS[S.design.difficulty].dead)+' days after arrival'}</div>
  <p style="font-size:12px">${(MISSIONS[sc.primary]||[]).map(([n,u])=>`<a href="${u}" target="_blank" rel="noopener">${n} ↗</a>`).join(' · ')}</p><button class="btn solid" data-act="closeModal">Got it</button>`);}
-function aboutModal(){showModal(`<h2>📚 About & data sources</h2><p>Target orbital and physical values come from a <b>bundled snapshot of the JPL Small-Body Database API</b>, fetched ${SBDB_SNAPSHOT.date}. They are labeled <span class="badge b-imp">IMPORTED · JPL SBDB snapshot</span>. Sensor readings during play are <span class="badge b-sim">SIMULATED</span> and never measurements. Live fetches are only labeled <span class="badge b-cy">LIVE</span> if a request to JPL actually succeeds.</p>
+function aboutModal(){showModal(`<h2>📚 About & data sources</h2><p style="font-size:12px;color:var(--dim)">NASA Space Apps Challenge entry · not affiliated with or endorsed by NASA. NASA and JPL are named only as data sources.</p><p>Target orbital and physical values come from a <b>bundled snapshot of the JPL Small-Body Database API</b>, fetched ${SBDB_SNAPSHOT.date}. They are labeled <span class="badge b-imp">IMPORTED · JPL SBDB snapshot</span>. Sensor readings during play are <span class="badge b-sim">SIMULATED</span> and never measurements. Live fetches are only labeled <span class="badge b-cy">LIVE</span> if a request to JPL actually succeeds.</p>
  <table class="tb"><tr><th>Target</th><th>a (AU)</th><th>e</th><th>i°</th><th>Period (d)</th><th>D (km)</th><th>Type</th></tr>${TARGETS.map(t=>{const s=SBDB_SNAPSHOT.data[t.id];return`<tr><td>${esc(s.fullname)}</td><td>${s.a}</td><td>${s.e}</td><td>${s.i}</td><td>${s.per_d}</td><td>${s.diameter_km}</td><td>${[s.spec_B,s.spec_T].filter(Boolean).join('/')}</td></tr>`;}).join('')}</table>
  <div class="lbl" style="margin-top:8px">Sources</div>${SOURCES.map(([n,u])=>`<div style="font-size:13px;margin:4px 0">• <a href="${u}" target="_blank" rel="noopener">${n}</a></div>`).join('')}
  <div class="lbl" style="margin-top:8px">Models used</div><p style="font-size:13px">Hohmann transfer time and Δv; Tsiolkovsky rocket equation; solar flux ∝ 1/r²; radio light-time 8.317 min/AU; equilibrium temperature T ≈ 278 K·(1−A)<sup>¼</sup>/√a; water electrolysis minimum ≈ 4.4 kWh/kg. Game rates (mining, build speed, events, composition fractions) are simplified and labeled simulated. Stage 3 (deep space): probe trip time = distance ÷ cruise speed; accelerate-and-brake mass ratio = e<sup>2v/vₑ</sup>; light-time = 1 year per light-year; exoplanet values from the bundled NASA Exoplanet Archive snapshot (${EXO_SNAPSHOT}); the spiral-arm map is a procedural model; interstellar propulsion and colony resources are FUTURE TECH / SPECULATIVE. Not a flight-certified planning system.</p>`);}
@@ -137,7 +137,7 @@ const ACT={
  openCrew:()=>crewModal(),crewMode:el=>{readCrew();S.team.mode=el.dataset.val;if(el.dataset.val!=='solo'&&S.team.players.length<2)setPlayers(2);if(el.dataset.val==='compete'){S.team.cur=0;S.team.results=[];}crewModal();},
  crewN:el=>{readCrew();setPlayers(+el.dataset.val);crewModal();},teamN:el=>{readCrew();const n=+el.dataset.val;S.team.teams=Array.from({length:n},(_,i)=>S.team.teams[i]||'Team '+'ABCD'[i]);crewModal();},
  crewSave:()=>{readCrew();hideModal();toast(S.team.mode==='solo'?'Solo mode.':`${S.team.mode==='coop'?'Co-op':'Competitive'}: ${S.team.players.map(p=>p.name+' ('+p.roles.map(r=>ROLES[r].short).join('/')+')').join(', ')}`,'g');},
- openLearn:()=>learnModal(),opStart:()=>Opener.start(),opSkip:()=>Opener.skip(),opFinish:()=>Opener.finish(false),replayIntro:()=>{audioInit();Opener.open();},openAbout:()=>aboutModal(),openData:()=>dataModal(),openBoard:()=>boardModal(),openSettings:()=>settingsModal(),openSaves:()=>savesModal(),
+ openLearn:()=>learnModal(),opStart:()=>Opener.start(),opSkip:()=>Opener.skip(),opFinish:()=>Opener.finish(false),replayIntro:()=>{audioInit();Opener.open();},openAbout:()=>aboutModal(),openData:()=>dataModal(),openBoard:()=>boardModal(),openSettings:()=>settingsModal(),openSaves:()=>savesScreen(),openDesigns:()=>savesModal(),
  dataMode:el=>{const v=el.dataset.val;if(v==='user'&&!Object.keys(S.data.imp).length&&S.data.mode!=='user'){toast('Paste or load data first, then tap Import.','y');return;}S.data.mode=v;applyDesignToState();toast(`Data source: ${activeRef(S.design.primary).src}`,'g');dataModal();App.refresh(true);},
  dataImport:()=>{try{const imp=parseData($('#dsText').value);const n=Object.keys(imp).length;if(!n)return toast('No matching targets found in that data.','y');S.data={...S.data,mode:'user',label:$('#dsLabel').value||'User-imported file (source not specified)',imp,date:new Date().toISOString().slice(0,10)};applyDesignToState();toast(`<b>Imported ${n} target(s)</b> — labeled IMPORTED · ${esc(S.data.label)}`,'g');hideModal();App.refresh(true);}catch(e){toast('Could not parse that data: '+esc(e.message),'r');}},
  dataLive:()=>liveFetch(),
@@ -147,6 +147,15 @@ const ACT={
  loadCode:()=>{try{loadDesignObj(fromCode($('#scode').value));}catch(e){toast('That share code is not valid.','r');}},
  exportJSON:()=>{const b=new Blob([JSON.stringify({game:'Operation Cosmoform',v:3,design:S.design,metrics:S.m},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=(S.design.name||'abmc-design')+'.json';a.click();toast('Design exported.','g');},
  saveMission:()=>{saveMission(true);},loadMission:()=>{loadMission();},
+ svList:()=>savesScreen(),svNew:()=>{const n=($('#svname')||{}).value;if(Saves.saveNew(n))savesScreen();},
+ svOver:el=>{if(Saves.overwrite(el.dataset.id))savesScreen();},svLoad:el=>{Saves.load(el.dataset.id);},
+ svRename:el=>svRenameDlg(el.dataset.id),svRenameOk:el=>{Saves.rename(el.dataset.id,$('#svren').value);savesScreen();},
+ svDup:el=>{Saves.dup(el.dataset.id);savesScreen();},svExport:el=>svExportDlg(el.dataset.id),svExportFile:el=>Saves.exportFile(el.dataset.id),
+ svCopyCode:()=>{const t=$('#svcodeout');t.select();(navigator.clipboard?navigator.clipboard.writeText(t.value):Promise.reject()).then(()=>toast('Save code copied.','g')).catch(()=>{document.execCommand&&document.execCommand('copy');toast('Save code selected — copy it.','y');});},
+ svImport:()=>svImportDlg(),svImportCode:()=>{try{if(Saves.importCode($('#svcode').value))savesScreen();}catch(e){toast('That code is not a valid save code.','r');}},
+ svDelAsk:el=>svConfirmDelete(el.dataset.id),svDelYes:el=>{const m=Saves.idx().find(x=>x.id===el.dataset.id);Saves.del(el.dataset.id);toast(`🗑 Deleted “${esc(m?m.name:'save')}”.`);savesScreen();},
+ svNewGame:()=>showModal(`<h2>✦ Start a new game?</h2><p>Your current game is autosaved first, so you can load it from <b>Saved games</b> later.</p><div class="row" style="margin-top:12px"><button class="btn solid big" data-act="svNewGameYes">✦ New game</button><button class="btn" data-act="svList">Cancel</button></div>`,true),
+ svNewGameYes:()=>{Saves.autosave();hideModal();S=newState('psyche');applyDesignToState();World.resetSwarm();View.lock=null;renderInfo(null);Deep.netDirty=1;Deep.redrawChain();go('console');toast('✦ New game started.','g');},
  saveScore:()=>{const b=LS.get('abmc_board',{});const k=`${S.design.scenario}|${S.design.difficulty}|${S.design.physics}`;(b[k]=b[k]||[]).push({name:$('#lbname').value||'Crew',score:S.report.score,grade:S.report.grade,date:new Date().toLocaleDateString()});b[k].sort((x,y)=>y.score-x.score);b[k]=b[k].slice(0,20);LS.set('abmc_board',b);toast('Score saved to leaderboard.','g');boardModal();},
  newMission:()=>{hideModal();const scn=S.design.scenario,df=S.design.difficulty,ph=S.design.physics;S=newState(scn);S.design.difficulty=df;S.design.physics=ph;applyDesignToState();World.resetSwarm();View.lock=null;renderInfo(null);go('console');toast('New mission ready. Plan it in Mission Architecture.','g');},
  nextTeam:()=>{const T=S.team;const seed=S.seed,scn=S.design.scenario,df=S.design.difficulty,ph=S.design.physics;T.cur++;S=newState(scn);S.seed=seed;S.design.difficulty=df;S.design.physics=ph;applyDesignToState();World.resetSwarm();go('arch');toast(`<b>${esc(T.teams[T.cur])}</b>, your turn — same scenario & events.`,'g');},
@@ -161,7 +170,7 @@ const ACT={
  deepProp:el=>{const D=Deep.st();D.prop=el.dataset.v;D.v=DPROPS[D.prop].v0;App.refresh(true);},
  deepPick:el=>{const D=Deep.st();D.pick[el.dataset.id]=!D.pick[el.dataset.id];App.refresh(true);},
  deepAuto:()=>{Deep.autoPick();App.refresh(true);},
- deepLaunch:()=>Deep.launch(),deepCrew:()=>Deep.shipGo(),deepFollow:()=>Deep.followShip(),
+ deepLaunch:()=>Deep.launch(),deepCrew:()=>Deep.shipGo(),deepFollow:()=>Deep.followShip(),deepVault:()=>{const D=Deep.st();D.vault=!D.vault;toast(D.vault?'🧬 Seed vault ARMED: hypothetical directed panspermia. Read the planetary-protection note.':'🧬 Seed vault disarmed.',D.vault?'y':'');App.refresh(true);},
  deepSel:el=>Deep.select(el.dataset.id),deepScale:el=>Deep.scaleTo(el.dataset.v),
  deepSheet:el=>{const s=$('#v-deep .deepsheet');s.classList.toggle('min');el.textContent=s.classList.contains('min')?'▴':'▾';},
  openDeep:()=>Deep.enter(false),
@@ -179,15 +188,15 @@ document.addEventListener('input',e=>{const k=e.target.dataset.inp;if(k==='mvol'
   if(k==='closure'||k==='kits')d.rep[k]=v;else if(k==='altitude')d.altitude=v;else if(k==='total'){d.fleet.total=v;Studio.ensure(d);Studio.normMix(d);Studio.sync();if(View.cur==='studio'){const y=$('#v-studio .panelbody').scrollTop;renderStudio();$('#v-studio .panelbody').scrollTop=y;return;}}else if(GKEYS.includes(k)){d.fleet[k]=Math.min(v,d.fleet.total);rebalanceFleet(d,k);}
   clearTimeout(App._inT);App._inT=setTimeout(()=>{const y=$('#arch-scroll').scrollTop;archChange();$('#arch-scroll').scrollTop=y;},120);});
 function startDemo(){App.demo=true;S=newState('ceres');S.design.difficulty='cadet';Studio.autoAll();applyDesignToState();World.resetSwarm();S.speed=2;App.CRUISE_SEC=10;launchMission();go('swarm');Coach.start();toast('<b>Demo launched!</b> The swarm is heading for Ceres. Follow the coach card.','g');}
-function saveMission(manual){try{const o={};for(const k in S){if(k.startsWith('_')||k==='rally')continue;o[k]=S[k];}o.waypoint=null;LS.set('abmc_mission',{when:new Date().toLocaleString(),s:o,player:World.player.p.toArray()});if(manual){toast('Mission saved on this device.','g');}}catch(e){if(manual)toast('Save failed.','r');}}
-function loadMission(){const ms=LS.get('abmc_mission',null);if(!ms)return;S=Object.assign(newState(ms.s.design.scenario),ms.s);World.resetSwarm();
+function saveMission(manual){if(manual){savesScreen();return;}Saves.autosave();}
+function loadMission(ms){if(!ms||!ms.s){const l=Saves.idx();const a=l.find(x=>x.auto)||l[0];ms=a&&Saves.read(a.id);}if(!ms||!ms.s)return;Saves.fixNames(ms.s);S=Object.assign(newState(ms.s.design.scenario),ms.s);World.resetSwarm();
   // rebuild drones at their work sites
   World.drones.length=0;GKEYS.forEach(g=>{for(let i=0;i<S.groups[g].n;i++){const at=S.phase==='plan'?World.launchPos:S.phase==='cruise'?World.launchPos:World.T[World.groupTarget(g)].pos;World.drones.push({...World._mk(g,at)});}});
   World.drones.forEach(d=>{if(!d.hist.length)for(let k=0;k<World.TR;k++)d.hist.push(d.p.clone());});
   if(S.phase==='cruise')World.onLaunchQuiet();if(S.phase==='ops'||S.phase==='ended'){World.onArrive();for(const id in S.mfac)if(S.mfac[id].online)World.onFactory(id);if(S.dfac.online)World.onDepotFactory();}
-  hideModal();go('console');toast('Mission resumed.','g');}
+  hideModal();View.lock=null;go('console');Deep.netDirty=1;Deep.lock=null;Deep.lockShip=false;Deep.redrawChain();if(He3.built)He3.redraw();toast('Game loaded.','g');}
 // ---------- loop ----------
-function loop(now){requestAnimationFrame(loop);const t=now/1000;let dt=Math.min(0.05,(now-(App.last||now))/1000);App.last=now;Opener.frame();
+function loop(now){requestAnimationFrame(loop);const t=now/1000;let dt=Math.min(0.05,(now-(App.last||now))/1000);App.last=now;Opener.frame();S.playSec=(S.playSec||0)+dt;
   if(!S.paused&&!S._decision&&(S.phase==='cruise'||S.phase==='ops')){let days=(S.phase==='cruise'?S.cruiseDays/App.CRUISE_SEC*Math.min(S.speed,2):App.OPS_DPS*S.speed)*dt;while(days>0&&(S.phase==='cruise'||S.phase==='ops')&&!S._decision){const st=Math.min(days,0.5);simStep(st);days-=st;}}
   // waypoint expiry
   if(S.waypoint){const wp=S.waypoint;const c=World.groupCentroid(wp.groups[0]);const p=new V3().fromArray(wp.pos);if(!wp.reached&&c.distanceTo(p)<wp.scale*1.4){wp.reached=performance.now();}
@@ -195,17 +204,17 @@ function loop(now){requestAnimationFrame(loop);const t=now/1000;let dt=Math.min(
   World.frame(S.paused&&View.cur!=='pov'?dt*0.15:dt,t);updateLabels();He3.updLabels();Deep.frame(dt);Deep.updLabels();
   App.hudT+=dt;if(App.hudT>0.25){App.hudT=0;updateHUD();Coach.tick();}
   App.panelT+=dt;if(App.panelT>1){App.panelT=0;if(!App.ptr&&!$('#modal').classList.contains('show')||View.cur==='swarm'){if(View.cur==='swarm')renderSwarmUI();if(View.cur==='fab'&&!App.ptr)renderFab();if(View.cur==='status'&&!App.ptr){const y=$('#v-status .panelbody').scrollTop;renderStatus();$('#v-status .panelbody').scrollTop=y;}if(View.cur==='solar'){renderSolarUI();}if(View.cur==='deep'&&S.deep&&S.deep.run&&!App.ptr){const sh=$('#v-deep .deepsheet');const y=sh.scrollTop;renderDeep();sh.scrollTop=y;}}
-    if(S.phase!=='plan'&&Math.random()<0.1)saveMission(false);}
+    if((S.phase!=='plan'||(S.deep&&S.deep.run))&&Math.random()<0.1)saveMission(false);}
 }
 function boot(){
   S=newState('psyche');
   $$('.topbar[data-title]').forEach(el=>el.innerHTML=topbar(el.dataset.title));
   World.init();Deep.initSolar();renderConsole();buildLabels();canvasInput();Opener.bind();bindPov();applyDesignToState();setMute(AUD.muted);
   window.addEventListener('resize',()=>World.resize());window.addEventListener('orientationchange',()=>setTimeout(()=>World.resize(),200));
-  document.addEventListener('visibilitychange',()=>{if(document.hidden&&S.phase!=='plan')saveMission(false);});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&(S.phase!=='plan'||S.deep))saveMission(false);});
   go('console');requestAnimationFrame(loop);
-  const ms=LS.get('abmc_mission',null);
-  if(!Opener.seen()){Opener.open();}else introModal();if(!App.opener&&ms&&ms.s&&ms.s.phase!=='plan'&&ms.s.phase!=='ended'){$('#mbox').insertAdjacentHTML('beforeend',`<div class="row" style="margin-top:8px"><button class="btn g" data-act="loadMission">⟲ Resume saved mission (${esc(ms.when)})</button></div>`);}
+  const mig=Saves.migrate();const au=Saves.idx().find(x=>x.auto)||Saves.idx()[0];const ms=au?{s:{phase:'ops'},when:new Date(au.when).toLocaleString()}:null;
+  if(!Opener.seen()){Opener.open();}else introModal();if(!App.opener&&ms){$('#mbox').insertAdjacentHTML('beforeend',`<div class="row" style="margin-top:8px"><button class="btn g" data-act="loadMission">⟲ Resume latest (${esc(ms.when)})</button><button class="btn" data-act="openSaves">💾 Saved games</button></div>`);}if(mig)setTimeout(()=>toast('💾 Your saved mission was moved into the new Saved games list.','g'),800);
   window.__ABMC_READY=true;
 }
 boot();

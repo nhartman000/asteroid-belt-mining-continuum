@@ -22,7 +22,7 @@ const Continuum={
     // terraformer life support: food (hydroponics), water (recycling), air (O2 from electrolysis), shelter (regolith-buried habitat), power
     const H=w.hab||(w.hab={food:0,water:0,air:0,shelter:0,power:0});const hr=0.014*clamp(d.sm?d.sm.hab:0.3,0,2.5)*cf*dd;const wet=w.water>1?1:0.3;
     H.food=Math.min(1,H.food+hr*wet*0.9);H.water=Math.min(1,H.water+hr*wet*1.2);H.air=Math.min(1,H.air+hr*wet);H.shelter=Math.min(1,H.shelter+hr*0.8);H.power=Math.min(1,H.power+hr*1.3*pEff);
-    if(!w._habT&&this.ready(tid)){w._habT=1;Music.jingle();log(`🌿 ${TMAP[tid].name} waystation is now habitable: the Marauder’s Daughter can stop here.`,'good');toast(`<b>${TMAP[tid].name} habitat ready</b> — life support passes the crew-stop threshold.`,'g');}}
+    if(!w._habT&&this.ready(tid)){w._habT=1;Music.jingle();log(`🌿 ${TMAP[tid].name} waystation is now habitable: the Marauder can stop here.`,'good');toast(`<b>${TMAP[tid].name} habitat ready</b> — life support passes the crew-stop threshold.`,'g');}}
   // replication: each factory builds drones from delivered ore + Earth "vitamins" (chips) not made locally
   const nf=this.factories();
   if(nf>0){S.prodTimer+=dd*nf*(d.sm?d.sm.fab:1)*(d.systems.fab?1.6:1)*pEff*cf/(1+this.closure(d)/200);
@@ -59,9 +59,9 @@ const Continuum={
    return{base,extra,total,needEarth,ratio:needEarth/SHIP.tank,stops,dests};},
  dispatch(){if(S.ship.status==='flying')return;const ch=this.chain();if(!ch.length)return toast(this.built().length?'No waystation is habitable yet — crews can only stop where life support (food, water, air, shelter, power) is ≥50%. Add terraformers or habitat builders.':'Build at least one waystation (mining factory) first — the ship needs somewhere to refuel.','y');
    S.ship={status:'flying',stop:0,seg:0,t:0,route:[World.launchPos.clone(),...ch.map(id=>World.T[id].pos.clone().add(new THREE.Vector3(0,TMAP[id].r*2,0))),World.planets.Jupiter.position.clone().multiplyScalar(0.62)],refuels:[],ids:ch};
-   World.ship.visible=true;World.ship.position.copy(S.ship.route[0]);log('👩‍🚀 The Marauder’s Daughter (crewed ship) departs Earth on the automated refuel chain.','good');toast('<b>Crewed ship launched!</b> Watch it refuel at each waystation.','g');sfx('launch');
+   World.ship.visible=true;World.ship.position.copy(S.ship.route[0]);log('👩‍🚀 The Marauder (crewed ship) departs Earth on the automated refuel chain.','good');toast('<b>Crewed ship launched!</b> Watch it refuel at each waystation.','g');sfx('launch');
    if(View.cur==='solar'||View.cur==='swarm'){World.cam.follow=()=>World.ship.position;World.flyTo(World.ship.position,View.cur==='solar'?14:6,1.4,()=>World.ship.position);}},
- frame(dt,t){const sh=S.ship;if(!sh||sh.status!=='flying')return;const R=sh.route;const a=R[sh.seg],b=R[sh.seg+1];if(!b){sh.status='done';const c=this.shipCalc();S.shipResult=c;Music.sting();log(`🏁 The Marauder’s Daughter completed the chain: Δv budget ${fmt(c.total,1)} km/s vs ${fmt(c.base,1)} km/s without waystations.`,'good');toast(`<b>Refuel chain complete!</b> Δv ${fmt(c.total,1)} km/s vs ${fmt(c.base,1)} km/s from Earth alone.`,'g');sfx('success');return;}
+ frame(dt,t){const sh=S.ship;if(!sh||sh.status!=='flying')return;const R=sh.route;const a=R[sh.seg],b=R[sh.seg+1];if(!b){sh.status='done';const c=this.shipCalc();S.shipResult=c;Music.sting();log(`🏁 The Marauder completed the chain: Δv budget ${fmt(c.total,1)} km/s vs ${fmt(c.base,1)} km/s without waystations.`,'good');toast(`<b>Refuel chain complete!</b> Δv ${fmt(c.total,1)} km/s vs ${fmt(c.base,1)} km/s from Earth alone.`,'g');sfx('success');return;}
    sh.t+=dt/(App.opener?1.6:3.2);const k=Math.min(1,sh.t);const e=k<0.5?2*k*k:1-Math.pow(-2*k+2,2)/2;World.ship.position.lerpVectors(a,b,e);World.ship.lookAt(b);World.ship.rotateY(-Math.PI/2);
    World.ship.userData.eng.material.opacity=0.6+0.4*Math.sin(t*30);
    if(sh.t>=1){sh.t=0;sh.seg++;const id=sh.ids[sh.seg-1];if(id&&sh.seg<=sh.ids.length){const w=S.ways[id];const f=Math.min(SHIP.tank,w.fuel);w.fuel-=f;sh.refuels.push({id,f});World.burst(World.ship.position,[0.6,0.9,1],50,0.5);World.floatText(World.ship.position,`⛽ +${fmt(f,1)} t propellant @ ${TMAP[id].name}`,'#5dff8a');sfx('build');log(`⛽ Ship refueled at ${TMAP[id].name}: +${fmt(f,1)} t (autonomous transfer).`,'good');}}},
@@ -71,7 +71,7 @@ const Continuum={
    {n:'Land, swarm & transform',done:mOn>=1,hint:'Factory drones dock together into a mining factory / waystation.'},
    {n:'Mine & replicate',done:S.gen.built>=5,hint:'Drone factories turn delivered ore into new drones.'},
    {n:'Expand: seed new factories',done:mOn>=2,hint:'Fabrication → Seed a new waystation with haulers.'},
-   {n:'Refuel the Marauder’s Daughter',done:S.ship&&S.ship.status==='done',hint:'Status → Dispatch the Marauder’s Daughter (crewed ship) along the chain.'}];},
+   {n:'Refuel the Marauder',done:S.ship&&S.ship.status==='done',hint:'Status → Dispatch the Marauder (crewed ship) along the chain.'}];},
  siteScore(id){const r=activeRef(id),t=TMAP[id];const e=dvEstimate(r.a,r.i,1);const dv=e.arr+e.plane*0.5;const sun=1/(r.a*r.a);
    const fuel=t.ice,parts=t.metal;const s=clamp(fuel*2.2+parts*0.9+sun*0.35-dv*0.035+0.25,0,1);return{s,dv,sun,fuel,parts};}
 };
